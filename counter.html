@@ -2,8 +2,8 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>現場點單 · 杜辛亞咖啡</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>現場點單 · CAFE FO+REST</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -13,12 +13,13 @@
     --paper-300:#E6E2D9; --line:#DFDACF;
     --ink:#2B2A28; --ink-soft:#5F5B54; --ink-mute:#8F8A80;
     --gold:#C9A56B; --gold-deep:#A9803F; --wood:#7C5A3A;
-    --ok:#5C7A5C; --warn:#A8823C; --alert:#B0604C;
+    --ok:#5C7A5C; --alert:#B0604C;
   }
   *{box-sizing:border-box;}
+  html,body{height:100%;}
   body{
     margin:0;
-    background:linear-gradient(180deg,#FFFFFF 0%, var(--paper-100) 40%, var(--paper-200) 100%) fixed;
+    background:linear-gradient(180deg,#FFFFFF 0%, var(--paper-100) 45%, var(--paper-200) 100%) fixed;
     color:var(--ink);font-family:'Inter',-apple-system,'Noto Sans TC',sans-serif;
     -webkit-font-smoothing:antialiased;
   }
@@ -26,240 +27,286 @@
   header.bar{
     background:linear-gradient(180deg,#FFFFFF,var(--paper-50));
     border-bottom:1px solid var(--line);
-    padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;
-    position:sticky;top:0;z-index:20;
+    padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;
   }
-  header.bar .brand{
+  .brand{
     font-family:'Space Grotesk',sans-serif;font-size:15px;letter-spacing:.08em;
-    display:flex;align-items:center;gap:10px;
+    display:flex;align-items:center;gap:9px;
   }
-  header.bar .brand .accent{color:var(--gold-deep);}
-  header.bar .eyebrow{
-    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;
-    text-transform:uppercase;color:var(--ink-mute);
+  .brand .accent{color:var(--gold-deep);}
+  .logo-mark{display:inline-block;width:14px;color:var(--gold);line-height:0;flex-shrink:0;}
+  .logo-mark svg{width:100%;height:auto;display:block;}
+  .bar-right{display:flex;align-items:center;gap:10px;}
+  .today{
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);
   }
-  .refresh-btn{
+  .btn-ghost{
     border:1px solid var(--line);border-radius:2px;
     background:linear-gradient(180deg,#FFFFFF,var(--paper-100));
-    color:var(--ink-soft);font-size:11.5px;padding:7px 13px;cursor:pointer;font-family:'JetBrains Mono',monospace;
+    color:var(--ink-soft);font-size:12px;padding:7px 13px;cursor:pointer;font-family:inherit;
   }
-  .refresh-btn:hover{border-color:var(--gold);color:var(--gold-deep);}
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold-deep);}
 
   .layout{
-    max-width:1180px;margin:0 auto;padding:18px;
-    display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start;
+    display:grid;grid-template-columns:1fr;gap:0;
+    max-width:1200px;margin:0 auto;
   }
-  @media (max-width:860px){
-    .layout{grid-template-columns:1fr;padding:12px;}
+  @media(min-width:900px){
+    .layout{grid-template-columns:1fr 340px;align-items:start;}
   }
 
-  /* ---------- 分類 chips ---------- */
-  .cat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
-  .cat-chip{
-    padding:8px 16px;border-radius:20px;cursor:pointer;
-    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.03em;
-    border:1px solid var(--line);color:var(--ink-soft);
-    background:linear-gradient(180deg,#FFFFFF,var(--paper-100));
-    user-select:none;
+  /* ---------- 菜單 ---------- */
+  .menu-side{padding:18px 20px 140px;}
+  @media(min-width:900px){ .menu-side{padding-bottom:40px;} }
+
+  .cats{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px;}
+  .cat{
+    font-size:13px;padding:8px 16px;border-radius:16px;cursor:pointer;
+    border:1px solid var(--line);
+    background:linear-gradient(180deg,#FFFFFF,var(--paper-50));color:var(--ink-soft);
   }
-  .cat-chip:hover{border-color:var(--gold);color:var(--gold-deep);}
-  .cat-chip.active{
+  .cat:hover{border-color:var(--gold);color:var(--gold-deep);}
+  .cat.on{
     border-color:var(--gold-deep);color:var(--white);
     background:linear-gradient(180deg,var(--gold),var(--gold-deep));
   }
 
-  /* ---------- 商品格 ---------- */
-  .product-grid{
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;
+  .grid{
+    display:grid;gap:10px;
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
   }
-  .product-tile{
+  .tile{
+    border:1px solid var(--line);border-radius:3px;
     background:linear-gradient(180deg,#FFFFFF,var(--paper-50));
-    border:1px solid var(--line);border-radius:3px;padding:13px 12px;
-    cursor:pointer;text-align:left;position:relative;
-    transition:border-color .15s,transform .1s;
+    padding:13px 14px;cursor:pointer;text-align:left;font-family:inherit;
+    display:flex;flex-direction:column;gap:5px;min-height:92px;position:relative;
+    transition:border-color .12s,transform .08s;
   }
-  .product-tile:hover{border-color:var(--gold);}
-  .product-tile:active{transform:scale(.98);}
-  .product-tile.disabled{cursor:not-allowed;opacity:.5;}
-  .product-tile.disabled:hover{border-color:var(--line);}
-  .pt-name{font-family:'Space Grotesk',sans-serif;font-size:14px;line-height:1.35;margin:0 0 8px;min-height:38px;}
-  .pt-price{font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--gold-deep);}
-  .pt-badge{
-    display:inline-block;margin-top:7px;padding:2px 8px;font-size:10px;border-radius:2px;
-    font-family:'JetBrains Mono',monospace;
+  .tile:hover{border-color:var(--gold);}
+  .tile:active{transform:scale(.98);}
+  .tile .n{font-size:14px;font-weight:600;line-height:1.4;}
+  .tile .m{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--wood);}
+  .tile .p{
+    font-family:'JetBrains Mono',monospace;font-size:14px;margin-top:auto;color:var(--ink);
   }
-  .pt-badge.low{background:#FAF1DE;color:var(--warn);}
-  .pt-badge.out{background:#FBEAE5;color:var(--alert);}
+  .tile .badge-qty{
+    position:absolute;top:8px;right:8px;min-width:20px;height:20px;padding:0 5px;
+    border-radius:10px;background:linear-gradient(180deg,var(--gold),var(--gold-deep));
+    color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:20px;
+    text-align:center;
+  }
+  .tile .low{
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--alert);
+  }
+  .tile.out{opacity:.45;cursor:not-allowed;}
+  .tile.out:hover{border-color:var(--line);}
 
-  .empty{padding:44px 16px;text-align:center;color:var(--ink-mute);font-size:13px;line-height:1.7;}
-
-  /* ---------- 購物車 ---------- */
-  .cart-panel{
+  /* ---------- 訂單面板 ---------- */
+  .order-side{
     background:linear-gradient(180deg,#FFFFFF,var(--paper-50));
-    border:1px solid var(--line);border-radius:3px;padding:16px;
-    position:sticky;top:76px;
+    border-left:1px solid var(--line);
+    padding:18px 18px 24px;
   }
-  @media (max-width:860px){ .cart-panel{position:static;} }
-  .cart-title{font-family:'Space Grotesk',sans-serif;font-size:15px;margin:0 0 12px;display:flex;justify-content:space-between;align-items:center;}
-  .cart-title .cnt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);}
-  .cart-empty{font-size:12.5px;color:var(--ink-mute);padding:20px 0;text-align:center;line-height:1.7;}
-  .cart-item{
-    display:flex;justify-content:space-between;align-items:center;gap:8px;
-    padding:9px 0;border-bottom:1px solid var(--paper-200);
+  @media(max-width:899px){
+    .order-side{
+      position:fixed;left:0;right:0;bottom:0;z-index:30;
+      border-left:none;border-top:1px solid var(--line);
+      border-radius:10px 10px 0 0;max-height:78vh;overflow-y:auto;
+      transform:translateY(calc(100% - 66px));transition:transform .26s cubic-bezier(.2,.8,.3,1);
+      box-shadow:0 -4px 20px rgba(124,90,58,.12);
+    }
+    .order-side.open{transform:translateY(0);}
+    .pull{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:6px 2px 14px;cursor:pointer;
+    }
+    .pull .t{font-family:'Space Grotesk',sans-serif;font-size:14px;}
+    .pull .a{font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--gold-deep);}
   }
-  .ci-info{flex:1;min-width:0;}
-  .ci-name{font-size:12.5px;color:var(--ink);}
-  .ci-price{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);margin-top:2px;}
-  .qty-stepper{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-  .qty-stepper button{
-    width:24px;height:24px;border:1px solid var(--line);border-radius:2px;background:var(--white);
-    cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink-soft);line-height:1;
+  @media(min-width:900px){
+    .order-side{position:sticky;top:0;min-height:100vh;}
+    .pull{display:none;}
   }
-  .qty-stepper button:hover{border-color:var(--gold);color:var(--gold-deep);}
-  .qty-stepper .q{font-family:'JetBrains Mono',monospace;font-size:12.5px;min-width:16px;text-align:center;}
 
-  .cart-summary{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);}
-  .sum-row{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-soft);padding:3px 0;}
-  .sum-row.total{font-size:16px;color:var(--ink);font-family:'JetBrains Mono',monospace;margin-top:4px;}
+  .side-title{
+    font-family:'Space Grotesk',sans-serif;font-size:14px;letter-spacing:.06em;
+    margin:0 0 12px;display:flex;align-items:center;gap:9px;
+  }
+  .side-title::before{content:'';width:14px;height:2px;background:var(--gold);}
 
-  .field-block{margin-top:14px;}
-  .field-label{
-    font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;
-    color:var(--ink-mute);letter-spacing:.06em;margin-bottom:5px;display:block;
+  .line{
+    display:flex;gap:10px;align-items:flex-start;
+    padding:11px 0;border-bottom:1px solid var(--paper-200);
   }
-  input.pos-field, select.pos-field, textarea.pos-field{
-    width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:2px;
-    background:var(--white);font-family:inherit;font-size:13px;color:var(--ink);
-  }
-  input.pos-field:focus, select.pos-field:focus, textarea.pos-field:focus{outline:none;border-color:var(--gold);}
-  .coupon-row{display:flex;gap:6px;}
-  .coupon-row input{flex:1;}
-  .coupon-row button{
-    flex-shrink:0;padding:0 12px;border-radius:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;
-    font-size:11px;border:1px solid var(--line);color:var(--ink-soft);
+  .line:last-of-type{border-bottom:none;}
+  .line-info{flex:1;min-width:0;}
+  .line-n{font-size:13.5px;font-weight:500;line-height:1.45;}
+  .line-p{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink-mute);margin-top:2px;}
+  .line-sub{font-family:'JetBrains Mono',monospace;font-size:13px;white-space:nowrap;}
+  .qrow{display:flex;align-items:center;gap:7px;margin-top:7px;}
+  .qbtn{
+    width:26px;height:26px;border:1px solid var(--line);border-radius:2px;
     background:linear-gradient(180deg,#FFFFFF,var(--paper-100));
+    font-size:15px;cursor:pointer;color:var(--ink-soft);
+    display:flex;align-items:center;justify-content:center;
   }
-  .coupon-row button:hover{border-color:var(--gold);color:var(--gold-deep);}
-  .coupon-msg{font-size:11.5px;margin-top:6px;line-height:1.6;}
-  .coupon-msg.ok{color:var(--ok);}
-  .coupon-msg.err{color:var(--alert);}
+  .qbtn:hover{border-color:var(--gold);color:var(--gold-deep);}
+  .qval{font-family:'JetBrains Mono',monospace;font-size:13px;min-width:20px;text-align:center;}
 
-  .submit-btn{
-    width:100%;margin-top:16px;padding:14px;border-radius:2px;cursor:pointer;
-    font-family:'Space Grotesk',sans-serif;font-size:15px;letter-spacing:.04em;
-    border:1px solid var(--gold-deep);
+  .empty{padding:34px 0;text-align:center;color:var(--ink-mute);font-size:13px;line-height:1.7;}
+
+  .fld{margin-top:12px;}
+  .fld label{
+    display:block;font-family:'JetBrains Mono',monospace;font-size:10px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--wood);margin-bottom:5px;
+  }
+  .fld input, .fld select{
+    width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:2px;
+    background:var(--white);font-family:inherit;font-size:13.5px;color:var(--ink);
+  }
+  .fld input:focus,.fld select:focus{outline:none;border-color:var(--gold);}
+  .row2{display:flex;gap:8px;}
+  .row2 input{flex:1;}
+  .btn-apply{
+    padding:0 15px;border:1px solid var(--gold-deep);border-radius:2px;
+    background:linear-gradient(180deg,#FFFDF8,#F5EBD8);color:var(--gold-deep);
+    font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit;
+  }
+  .btn-apply:hover{background:var(--gold-deep);color:var(--white);}
+  .msg{font-size:11.5px;margin-top:5px;line-height:1.6;}
+  .msg.ok{color:var(--ok);} .msg.err{color:var(--alert);}
+
+  .totals{border-top:1px solid var(--line);margin-top:14px;padding-top:12px;}
+  .trow{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;color:var(--ink-soft);}
+  .trow.big{
+    font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--ink);
+    margin-top:8px;padding-top:10px;border-top:1px solid var(--line);
+  }
+  .btn-submit{
+    width:100%;margin-top:14px;padding:16px;
+    border:1px solid var(--gold-deep);border-radius:2px;
     background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:var(--white);
+    font-family:'Space Grotesk',sans-serif;font-size:15px;letter-spacing:.05em;cursor:pointer;
   }
-  .submit-btn:hover{background:linear-gradient(180deg,var(--gold-deep),var(--wood));}
-  .submit-btn:disabled{opacity:.5;cursor:not-allowed;background:var(--paper-300);border-color:var(--line);color:var(--ink-mute);}
-
-  .toast{
-    position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
-    background:linear-gradient(180deg,#FFFFFF,var(--paper-100));
-    border:1px solid var(--gold);color:var(--gold-deep);
-    padding:10px 20px;font-size:12px;font-family:'JetBrains Mono',monospace;border-radius:2px;
-    opacity:0;pointer-events:none;transition:opacity .25s;
-    box-shadow:0 4px 16px rgba(124,90,58,.1);z-index:100;max-width:90vw;text-align:center;
+  .btn-submit:hover:not(:disabled){background:linear-gradient(180deg,var(--gold-deep),var(--wood));}
+  .btn-submit:disabled{
+    background:linear-gradient(180deg,var(--paper-100),var(--paper-200));
+    color:var(--ink-mute);border-color:var(--line);cursor:not-allowed;
   }
-  .toast.show{opacity:1;}
-  .toast.err{border-color:var(--alert);color:var(--alert);}
+  .btn-clear{
+    width:100%;margin-top:8px;padding:9px;border:1px solid var(--line);border-radius:2px;
+    background:none;color:var(--ink-mute);font-size:12px;cursor:pointer;font-family:inherit;
+  }
+  .btn-clear:hover{border-color:var(--alert);color:var(--alert);}
 
+  /* ---------- 收據 ---------- */
+  .receipt-bg{
+    position:fixed;inset:0;background:rgba(43,42,40,.4);z-index:50;
+    display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .receipt-bg.show{display:flex;}
+  .receipt{
+    background:linear-gradient(180deg,#FFFFFF,var(--paper-50));
+    border:1px solid var(--line);border-radius:4px;
+    width:100%;max-width:380px;max-height:88vh;overflow-y:auto;padding:26px 24px;
+    text-align:center;
+  }
+  .receipt .oid{
+    font-family:'JetBrains Mono',monospace;font-size:22px;color:var(--gold-deep);margin:12px 0 16px;
+  }
+  .receipt h3{font-family:'Space Grotesk',sans-serif;font-size:17px;margin:0;}
+  .rlines{text-align:left;border-top:1px solid var(--line);margin-top:14px;padding-top:12px;}
+  .rline{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:var(--ink-soft);}
+  .rtotal{
+    display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;
+    font-size:17px;border-top:1px solid var(--line);margin-top:10px;padding-top:11px;
+  }
+  .btn-next{
+    width:100%;margin-top:20px;padding:15px;
+    border:1px solid var(--gold-deep);border-radius:2px;
+    background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#fff;
+    font-family:'Space Grotesk',sans-serif;font-size:14.5px;cursor:pointer;letter-spacing:.05em;
+  }
   .setup-warn{
-    margin:60px auto;max-width:560px;
+    margin:40px auto;max-width:560px;
     background:linear-gradient(180deg,#FFFDF8,#F7F0E2);
     border:1px solid var(--gold);border-radius:2px;padding:18px 20px;
     font-size:13px;line-height:1.75;color:var(--wood);
   }
-
-  /* ---------- 完成收據 modal ---------- */
-  .modal-mask{
-    display:none;position:fixed;inset:0;background:rgba(43,42,40,.45);
-    align-items:center;justify-content:center;z-index:200;padding:20px;
+  .toast{
+    position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+    background:linear-gradient(180deg,#FFFFFF,var(--paper-100));
+    border:1px solid var(--gold);color:var(--gold-deep);
+    padding:9px 18px;font-size:12px;font-family:'JetBrains Mono',monospace;
+    border-radius:2px;opacity:0;pointer-events:none;transition:opacity .22s;z-index:60;
   }
-  .modal-mask.show{display:flex;}
-  .receipt-box{
-    width:100%;max-width:320px;background:var(--white);border-radius:3px;
-    padding:28px 24px;text-align:center;
-  }
-  .receipt-box .eyebrow{
-    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;
-    text-transform:uppercase;color:var(--gold-deep);margin:0 0 10px;
-  }
-  .receipt-box .oid{font-family:'JetBrains Mono',monospace;font-size:20px;margin:0 0 14px;color:var(--ink);}
-  .receipt-box .amt{font-family:'Space Grotesk',sans-serif;font-size:28px;margin:0 0 6px;}
-  .receipt-box .note{font-size:12px;color:var(--ink-mute);margin:0 0 20px;}
-  .receipt-box button{
-    width:100%;padding:12px;border-radius:2px;cursor:pointer;
-    border:1px solid var(--gold-deep);
-    background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:var(--white);
-    font-family:'Space Grotesk',sans-serif;font-size:14px;letter-spacing:.04em;
-  }
+  .toast.show{opacity:1;}
 </style>
 </head>
 <body>
 
-<div id="setupWarn" class="setup-warn" style="display:none;"></div>
+<header class="bar">
+  <div class="brand">
+    <span class="logo-mark" aria-hidden="true">
+      <svg viewBox="0 0 244 696" xmlns="http://www.w3.org/2000/svg">
+        <path fill="currentColor" d="M0 0 L157 243 L79 243 L200 450 L107 450 L244 696 L0 696 Z"/>
+      </svg>
+    </span>
+    CAFE <span class="accent">FO+REST</span> · 現場點單
+  </div>
+  <div class="bar-right">
+    <span class="today" id="todayCount"></span>
+    <button class="btn-ghost" onclick="reloadAll()">重新整理</button>
+  </div>
+</header>
 
-<div id="app" style="display:none;">
-  <header class="bar">
-    <div class="brand">杜辛亞咖啡 <span class="accent">Dulcinea</span></div>
-    <div class="eyebrow">現場點單台</div>
-    <button class="refresh-btn" onclick="loadCatalog()">重新整理菜單</button>
-  </header>
+<div class="layout" id="app">
+  <div class="menu-side">
+    <div class="cats" id="cats"></div>
+    <div class="grid" id="grid"><div class="empty">載入菜單中…</div></div>
+  </div>
 
-  <div class="layout">
-    <div>
-      <div class="cat-row" id="catRow"></div>
-      <div class="product-grid" id="productGrid"></div>
+  <div class="order-side" id="orderSide">
+    <div class="pull" onclick="togglePanel()">
+      <span class="t">訂單明細 <span id="pullCount"></span></span>
+      <span class="a" id="pullAmt">NT$ 0</span>
     </div>
 
-    <div class="cart-panel">
-      <div class="cart-title">購物車 <span class="cnt" id="cartCount">0 項</span></div>
-      <div id="cartBody"><div class="cart-empty">尚未加入商品</div></div>
+    <h2 class="side-title">訂單明細</h2>
+    <div id="lines"><div class="empty">點左側商品加入訂單</div></div>
 
-      <div class="cart-summary">
-        <div class="sum-row"><span>小計</span><span id="sumSubtotal">NT$0</span></div>
-        <div class="sum-row" id="discountRow" style="display:none;"><span>折扣</span><span id="sumDiscount">−NT$0</span></div>
-        <div class="sum-row total"><span>合計</span><span id="sumTotal">NT$0</span></div>
+    <div class="fld">
+      <label for="cpn">優惠券代碼（選填）</label>
+      <div class="row2">
+        <input type="text" id="cpn" placeholder="CPN-XXXXX">
+        <button class="btn-apply" onclick="applyCoupon()">套用</button>
       </div>
-
-      <div class="field-block">
-        <label class="field-label">客人姓名（選填）</label>
-        <input class="pos-field" id="custName" placeholder="現場客人">
-      </div>
-      <div class="field-block">
-        <label class="field-label">電話（選填，會員集點用）</label>
-        <input class="pos-field" id="custPhone" placeholder="0912345678" inputmode="tel">
-      </div>
-      <div class="field-block">
-        <label class="field-label">優惠券代碼</label>
-        <div class="coupon-row">
-          <input class="pos-field" id="couponCode" placeholder="輸入代碼">
-          <button onclick="applyCoupon()">套用</button>
-        </div>
-        <div class="coupon-msg" id="couponMsg"></div>
-      </div>
-      <div class="field-block">
-        <label class="field-label">付款方式</label>
-        <select class="pos-field" id="paymentSelect"></select>
-      </div>
-      <div class="field-block">
-        <label class="field-label">備註（選填）</label>
-        <textarea class="pos-field" id="orderNote" rows="2"></textarea>
-      </div>
-
-      <button class="submit-btn" id="submitBtn" onclick="submitOrder()" disabled>送出訂單</button>
+      <div class="msg" id="cpnMsg"></div>
     </div>
+
+    <div class="fld">
+      <label for="phone">客人電話（選填，累積風味護照用）</label>
+      <input type="tel" id="phone" placeholder="0912-345-678">
+    </div>
+
+    <div class="fld">
+      <label for="pay">付款方式</label>
+      <select id="pay"></select>
+    </div>
+
+    <div class="totals" id="totals"></div>
+    <button class="btn-submit" id="submitBtn" onclick="submitOrder()" disabled>結帳</button>
+    <button class="btn-clear" onclick="clearOrder()">清空訂單</button>
   </div>
 </div>
 
-<div class="modal-mask" id="receiptMask">
-  <div class="receipt-box">
-    <div class="eyebrow">已完成</div>
-    <div class="oid" id="receiptId">FC-000000-000</div>
-    <div class="amt" id="receiptTotal">NT$0</div>
-    <div class="note" id="receiptCoupon"></div>
-    <button onclick="closeReceipt()">下一筆</button>
+<div class="receipt-bg" id="receiptBg">
+  <div class="receipt">
+    <h3>結帳完成</h3>
+    <div class="oid" id="rOid">#FC-000000</div>
+    <div class="rlines" id="rLines"></div>
+    <div class="rtotal"><span>實收</span><span id="rTotal">NT$ 0</span></div>
+    <button class="btn-next" onclick="nextCustomer()">完成，下一位</button>
   </div>
 </div>
 
@@ -268,260 +315,260 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-config.js"></script>
 <script>
-let catalog = [];        // get_counter_catalog() 回傳的商品陣列
-let paymentMethods = [];
-let activeCategory = '全部';
-let cart = {};           // { product_id: { name, price, qty, available_qty } }
-let appliedCoupon = null; // { code, kind, discount_type, discount_value, exchange_item }
+let products = [], tags = [], links = [], payments = [], limits = {};
+let cart = {};              // product_id -> qty
+let coupon = null;
+let activeCat = '全部';
 
-function showToast(msg, isErr){
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function money(n){ return 'NT$ ' + Number(n||0).toLocaleString('en-US'); }
+function showToast(m){
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (isErr ? ' err' : '');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(()=>{ t.className = 'toast'; }, 2600);
+  t.textContent = m; t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 1600);
 }
 
-function money(n){ return 'NT$' + Number(n||0).toLocaleString('zh-Hant'); }
-
-/* ---------- 開機 ---------- */
-async function boot(){
-  const problem = (typeof configProblem === 'function') ? configProblem() : null;
-  if (problem) {
-    document.getElementById('setupWarn').style.display = 'block';
-    document.getElementById('setupWarn').textContent = '設定尚未完成：' + problem;
+/* ---------- 載入 ---------- */
+async function init(){
+  if(!isConfigured()){
+    document.getElementById('app').innerHTML =
+      `<div class="setup-warn">${configWarning()}</div>`;
     return;
   }
-  document.getElementById('app').style.display = 'block';
-  await Promise.all([loadCatalog(), loadPaymentMethods()]);
+  await reloadAll();
 }
 
-async function loadCatalog(){
-  const { data, error } = await sb.rpc('get_counter_catalog');
-  if (error || !data || !data.ok) {
-    showToast('讀取菜單失敗，請重新整理頁面', true);
+async function reloadAll(){
+  const [pRes, tRes, lRes, payRes, limRes] = await Promise.all([
+    sb.from('products').select('*').eq('active', true).order('sort_order'),
+    sb.from('tags').select('*').order('kind').order('sort_order'),
+    sb.from('product_tags').select('*'),
+    sb.from('payment_methods').select('*').eq('enabled', true).order('sort_order'),
+    sb.rpc('counter_stock_limits')
+  ]);
+
+  if(pRes.error){
+    document.getElementById('grid').innerHTML =
+      `<div class="empty">菜單載入失敗：${esc(pRes.error.message)}</div>`;
     return;
   }
-  catalog = data.products || [];
-  // 依購物車裡目前的數量，把 cart 內項目的 available_qty 同步更新（重新整理菜單後庫存可能變動）
-  Object.keys(cart).forEach(id=>{
-    const p = catalog.find(c=>c.id===id);
-    if (p) cart[id].available_qty = p.available_qty;
-  });
-  renderCategories();
-  renderProducts();
-  renderCart();
+  tags = tRes.data || [];
+  links = lRes.data || [];
+  payments = payRes.data || [];
+  limits = limRes.data || {};
+
+  // 只留掛著「現場點單」通路的商品
+  const counterTag = tags.find(t => t.kind === 'channel' && t.name === '現場點單');
+  const allowed = new Set(
+    counterTag ? links.filter(l => l.tag_id === counterTag.id).map(l => l.product_id) : []
+  );
+  products = (pRes.data || []).filter(p => allowed.has(p.id));
+
+  renderPayments();
+  renderCats();
+  renderGrid();
+  renderOrder();
+  loadTodayCount();
 }
 
-async function loadPaymentMethods(){
-  const { data, error } = await sb.from('payment_methods').select('*').eq('enabled', true).order('sort_order');
-  paymentMethods = data || [];
-  const sel = document.getElementById('paymentSelect');
-  if (!paymentMethods.length) {
-    sel.innerHTML = '<option value="">（尚未設定付款方式）</option>';
-    return;
-  }
-  sel.innerHTML = paymentMethods.map(p=>`<option value="${escAttr(p.id)}">${escHtml(p.name)}</option>`).join('');
-  const cash = paymentMethods.find(p=>p.type==='cash');
-  if (cash) sel.value = cash.id;
+async function loadTodayCount(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const { count } = await sb.from('orders')
+    .select('id', { count:'exact', head:true })
+    .eq('order_source', 'counter')
+    .gte('created_at', today.toISOString());
+  document.getElementById('todayCount').textContent =
+    count != null ? `今日現場 ${count} 筆` : '';
 }
 
-/* ---------- 分類 chips ---------- */
-function renderCategories(){
-  const cats = ['全部', ...new Set(catalog.map(p=>p.category).filter(Boolean))];
-  if (!cats.includes(activeCategory)) activeCategory = '全部';
-  document.getElementById('catRow').innerHTML = cats.map(c=>
-    `<div class="cat-chip ${c===activeCategory?'active':''}" onclick="selectCategory('${escAttr(c)}')">${escHtml(c)}</div>`
+function menuOf(pid){
+  const ids = links.filter(l => l.product_id === pid).map(l => l.tag_id);
+  const t = tags.find(x => x.kind === 'menu' && ids.includes(x.id));
+  return t ? t.name : '其他';
+}
+
+function renderCats(){
+  const set = new Set(products.map(p => menuOf(p.id)));
+  const ordered = tags.filter(t => t.kind === 'menu' && set.has(t.name)).map(t => t.name);
+  if(set.has('其他')) ordered.push('其他');
+  const cats = ['全部', ...ordered];
+  document.getElementById('cats').innerHTML = cats.map(c =>
+    `<span class="cat ${c===activeCat?'on':''}" onclick="setCat('${esc(c)}')">${esc(c)}</span>`
   ).join('');
 }
-function selectCategory(c){ activeCategory = c; renderCategories(); renderProducts(); }
+function setCat(c){ activeCat = c; renderCats(); renderGrid(); }
 
-/* ---------- 商品格 ---------- */
-function renderProducts(){
-  const list = activeCategory==='全部' ? catalog : catalog.filter(p=>p.category===activeCategory);
-  const grid = document.getElementById('productGrid');
-  if (!list.length) {
-    grid.innerHTML = '<div class="empty">這個分類目前沒有上架的商品</div>';
-    return;
-  }
-  grid.innerHTML = list.map(p=>{
-    const out = p.available_qty <= 0;
-    const low = !out && p.available_qty < 10 && p.available_qty < 999999;
-    let badge = '';
-    if (out) badge = '<span class="pt-badge out">缺貨</span>';
-    else if (low) badge = `<span class="pt-badge low">剩 ${p.available_qty} 份</span>`;
-    return `<div class="product-tile ${out?'disabled':''}" ${out?'':`onclick="addToCart('${escAttr(p.id)}')"`}>
-      <div class="pt-name">${escHtml(p.name)}</div>
-      <div class="pt-price">${money(p.price)}</div>
-      ${badge}
-    </div>`;
+function renderGrid(){
+  const list = activeCat === '全部'
+    ? products : products.filter(p => menuOf(p.id) === activeCat);
+  const g = document.getElementById('grid');
+  if(!list.length){ g.innerHTML = '<div class="empty">這個分類還沒有商品</div>'; return; }
+
+  g.innerHTML = list.map(p => {
+    const max = limits[p.id] != null ? Number(limits[p.id]) : 99;
+    const inCart = cart[p.id] || 0;
+    const out = max <= 0;
+    return `
+    <button class="tile ${out?'out':''}" ${out?'disabled':''} onclick="add('${p.id}')">
+      ${inCart ? `<span class="badge-qty">${inCart}</span>` : ''}
+      <span class="n">${esc(p.name)}</span>
+      <span class="m">${esc(p.meta || '')}</span>
+      ${out ? '<span class="low">已售完</span>'
+            : (max <= 5 ? `<span class="low">剩 ${max} 份</span>` : '')}
+      <span class="p">${money(p.price)}</span>
+    </button>`;
   }).join('');
 }
 
-/* ---------- 購物車 ---------- */
-function addToCart(id){
-  const p = catalog.find(c=>c.id===id);
-  if (!p || p.available_qty <= 0) return;
-  const cur = cart[id];
-  const curQty = cur ? cur.qty : 0;
-  if (p.available_qty < 999999 && curQty + 1 > p.available_qty) {
-    showToast('庫存不夠了，最多只能加 ' + p.available_qty + ' 份', true);
-    return;
-  }
-  if (cur) cur.qty += 1;
-  else cart[id] = { name: p.name, price: p.price, qty: 1, available_qty: p.available_qty };
-  renderCart();
+/* ---------- 訂單 ---------- */
+function add(id){
+  const max = limits[id] != null ? Number(limits[id]) : 99;
+  const cur = cart[id] || 0;
+  if(cur >= max){ showToast('庫存只剩 ' + max + ' 份'); return; }
+  cart[id] = cur + 1;
+  renderGrid(); renderOrder();
 }
-function changeQty(id, delta){
-  const item = cart[id];
-  if (!item) return;
-  const p = catalog.find(c=>c.id===id);
-  const avail = p ? p.available_qty : item.available_qty;
-  const next = item.qty + delta;
-  if (next <= 0) { delete cart[id]; renderCart(); return; }
-  if (avail < 999999 && next > avail) {
-    showToast('庫存不夠了，最多只能加 ' + avail + ' 份', true);
-    return;
-  }
-  item.qty = next;
-  renderCart();
+function chg(id, d){
+  const max = limits[id] != null ? Number(limits[id]) : 99;
+  const next = (cart[id] || 0) + d;
+  if(next > max){ showToast('庫存只剩 ' + max + ' 份'); return; }
+  if(next <= 0) delete cart[id]; else cart[id] = next;
+  renderGrid(); renderOrder();
 }
-function removeFromCart(id){ delete cart[id]; renderCart(); }
-
-function cartSubtotal(){
-  return Object.values(cart).reduce((s,i)=> s + i.price * i.qty, 0);
+function subtotal(){
+  return Object.keys(cart).reduce((s,id) => {
+    const p = products.find(x => x.id === id);
+    return s + (p ? Number(p.price) * cart[id] : 0);
+  }, 0);
 }
-function cartDiscount(subtotal){
-  if (!appliedCoupon || appliedCoupon.kind !== 'discount') return 0;
-  let d;
-  if (appliedCoupon.discount_type === 'percent') d = Math.round(subtotal * (1 - appliedCoupon.discount_value / 10));
-  else d = appliedCoupon.discount_value;
-  return Math.min(subtotal, Math.max(0, d));
+function discountOf(sub){
+  if(!coupon || coupon.kind !== 'discount') return 0;
+  const raw = coupon.discount_type === 'percent'
+    ? sub * (1 - Number(coupon.discount_value) / 10)
+    : Number(coupon.discount_value);
+  return Math.min(sub, Math.max(0, Math.round(raw)));
 }
 
-function renderCart(){
+function renderOrder(){
   const ids = Object.keys(cart);
-  const body = document.getElementById('cartBody');
-  const submitBtn = document.getElementById('submitBtn');
-  document.getElementById('cartCount').textContent = ids.reduce((s,id)=>s+cart[id].qty,0) + ' 項';
+  const box = document.getElementById('lines');
+  const n = Object.values(cart).reduce((s,x)=>s+x, 0);
 
-  if (!ids.length) {
-    body.innerHTML = '<div class="cart-empty">尚未加入商品</div>';
-    submitBtn.disabled = true;
-  } else {
-    body.innerHTML = ids.map(id=>{
-      const i = cart[id];
-      return `<div class="cart-item">
-        <div class="ci-info">
-          <div class="ci-name">${escHtml(i.name)}</div>
-          <div class="ci-price">${money(i.price)} × ${i.qty}</div>
+  box.innerHTML = ids.length ? ids.map(id => {
+    const p = products.find(x => x.id === id);
+    if(!p) return '';
+    return `
+    <div class="line">
+      <div class="line-info">
+        <div class="line-n">${esc(p.name)}</div>
+        <div class="line-p">${money(p.price)}</div>
+        <div class="qrow">
+          <div class="qbtn" onclick="chg('${id}',-1)">−</div>
+          <div class="qval">${cart[id]}</div>
+          <div class="qbtn" onclick="chg('${id}',1)">＋</div>
         </div>
-        <div class="qty-stepper">
-          <button onclick="changeQty('${escAttr(id)}',-1)">−</button>
-          <span class="q">${i.qty}</span>
-          <button onclick="changeQty('${escAttr(id)}',1)">＋</button>
-        </div>
-      </div>`;
-    }).join('');
-    submitBtn.disabled = false;
-  }
+      </div>
+      <div class="line-sub">${money(Number(p.price)*cart[id])}</div>
+    </div>`;
+  }).join('') : '<div class="empty">點左側商品加入訂單</div>';
 
-  const subtotal = cartSubtotal();
-  const discount = cartDiscount(subtotal);
-  document.getElementById('sumSubtotal').textContent = money(subtotal);
-  document.getElementById('sumTotal').textContent = money(subtotal - discount);
-  const discountRow = document.getElementById('discountRow');
-  if (discount > 0) {
-    discountRow.style.display = 'flex';
-    document.getElementById('sumDiscount').textContent = '−' + money(discount);
-  } else {
-    discountRow.style.display = 'none';
-  }
+  const sub = subtotal();
+  const dis = discountOf(sub);
+  let rows = `<div class="trow"><span>小計</span><span>${money(sub)}</span></div>`;
+  if(dis > 0) rows += `<div class="trow" style="color:var(--ok)"><span>優惠折抵</span><span>− ${money(dis)}</span></div>`;
+  if(coupon && coupon.kind === 'exchange')
+    rows += `<div class="trow" style="color:var(--ok)"><span>兌換</span><span>${esc(coupon.exchange_item)}</span></div>`;
+  rows += `<div class="trow big"><span>應收</span><span>${money(sub - dis)}</span></div>`;
+  document.getElementById('totals').innerHTML = rows;
+
+  document.getElementById('submitBtn').disabled = !ids.length;
+  document.getElementById('pullCount').textContent = n ? `(${n})` : '';
+  document.getElementById('pullAmt').textContent = money(sub - dis);
+}
+
+function renderPayments(){
+  const sel = document.getElementById('pay');
+  sel.innerHTML = payments.map(p =>
+    `<option value="${esc(p.id)}" ${p.type==='cash'?'selected':''}>${esc(p.name)}</option>`).join('')
+    || '<option value="cash">現場結帳</option>';
 }
 
 /* ---------- 優惠券 ---------- */
 async function applyCoupon(){
-  const codeEl = document.getElementById('couponCode');
-  const msg = document.getElementById('couponMsg');
-  const code = codeEl.value.trim();
-  if (!code) {
-    appliedCoupon = null;
-    msg.textContent = '';
-    renderCart();
-    return;
-  }
+  const code = document.getElementById('cpn').value.trim();
+  const msg = document.getElementById('cpnMsg');
+  if(!code){ coupon = null; msg.textContent = ''; renderOrder(); return; }
+
   const { data, error } = await sb.rpc('check_coupon', { p_code: code });
-  if (error || !data || !data.ok) {
-    appliedCoupon = null;
-    msg.className = 'coupon-msg err';
-    msg.textContent = (data && data.reason) ? data.reason : '這張券無法使用';
-    renderCart();
-    return;
+  if(error || !data || !data.ok){
+    coupon = null;
+    msg.textContent = (data && data.reason) || '無法確認代碼';
+    msg.className = 'msg err';
+  } else {
+    coupon = data;
+    msg.textContent = data.kind === 'discount'
+      ? `已套用 ${data.discount_type==='percent' ? data.discount_value+' 折' : '折抵 NT$'+data.discount_value}`
+      : `已套用兌換券：${data.exchange_item}`;
+    msg.className = 'msg ok';
   }
-  appliedCoupon = data;
-  msg.className = 'coupon-msg ok';
-  msg.textContent = data.kind === 'discount'
-    ? '已套用：' + (data.discount_type==='percent' ? data.discount_value+' 折' : '折抵 '+money(data.discount_value))
-    : '已套用兌換券：' + data.exchange_item;
-  renderCart();
+  renderOrder();
 }
 
-/* ---------- 送出訂單 ---------- */
+/* ---------- 送出 ---------- */
 async function submitOrder(){
   const ids = Object.keys(cart);
-  if (!ids.length) return;
-  const submitBtn = document.getElementById('submitBtn');
-  submitBtn.disabled = true;
-  submitBtn.textContent = '送出中…';
-
-  const items = ids.map(id => ({ product_id: id, qty: cart[id].qty }));
-  const payment = document.getElementById('paymentSelect').value;
-  const couponCode = appliedCoupon ? document.getElementById('couponCode').value.trim() : '';
+  if(!ids.length) return;
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = '結帳中…';
 
   const { data, error } = await sb.rpc('place_counter_order', {
-    p_customer_name: document.getElementById('custName').value.trim(),
-    p_phone: document.getElementById('custPhone').value.trim(),
-    p_note: document.getElementById('orderNote').value.trim(),
-    p_payment: payment,
-    p_coupon_code: couponCode,
-    p_items: items
+    p_customer_name: '',
+    p_phone: document.getElementById('phone').value.trim(),
+    p_payment: document.getElementById('pay').value || 'cash',
+    p_coupon_code: document.getElementById('cpn').value.trim(),
+    p_note: '',
+    p_items: ids.map(id => ({ product_id: id, qty: cart[id] }))
   });
 
-  submitBtn.textContent = '送出訂單';
+  btn.disabled = false; btn.textContent = '結帳';
 
-  if (error || !data || !data.ok) {
-    showToast((data && data.reason) ? data.reason : '送出失敗，請再試一次', true);
-    submitBtn.disabled = false;
-    return;
-  }
+  if(error){ showToast('結帳失敗：' + error.message); return; }
+  if(!data || !data.ok){ showToast((data && data.reason) || '結帳失敗'); return; }
 
-  document.getElementById('receiptId').textContent = data.order_id;
-  document.getElementById('receiptTotal').textContent = money(data.total);
-  document.getElementById('receiptCoupon').textContent = data.coupon_note || '';
-  document.getElementById('receiptMask').classList.add('show');
-
-  // 重置購物車與表單，重新抓一次菜單同步最新庫存
-  cart = {};
-  appliedCoupon = null;
-  document.getElementById('custName').value = '';
-  document.getElementById('custPhone').value = '';
-  document.getElementById('couponCode').value = '';
-  document.getElementById('couponMsg').textContent = '';
-  document.getElementById('orderNote').value = '';
-  renderCart();
-  loadCatalog();
-}
-function closeReceipt(){
-  document.getElementById('receiptMask').classList.remove('show');
+  document.getElementById('rOid').textContent = '#' + data.order_id;
+  document.getElementById('rTotal').textContent = money(data.total);
+  document.getElementById('rLines').innerHTML =
+    (data.lines || []).map(l =>
+      `<div class="rline"><span>${esc(l.name)} × ${l.qty}</span><span>${money(l.sub)}</span></div>`).join('')
+    + (Number(data.discount) > 0
+        ? `<div class="rline" style="color:var(--ok)"><span>優惠折抵</span><span>− ${money(data.discount)}</span></div>` : '');
+  document.getElementById('receiptBg').classList.add('show');
 }
 
-/* ---------- 小工具 ---------- */
-function escHtml(s){
-  return String(s ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function nextCustomer(){
+  document.getElementById('receiptBg').classList.remove('show');
+  clearOrder();
+  reloadAll();                        // 重抓庫存上限
+  document.getElementById('orderSide').classList.remove('open');
 }
-function escAttr(s){ return escHtml(s).replace(/`/g,'&#96;'); }
 
-boot();
+function clearOrder(){
+  cart = {}; coupon = null;
+  document.getElementById('cpn').value = '';
+  document.getElementById('cpnMsg').textContent = '';
+  document.getElementById('phone').value = '';
+  renderGrid(); renderOrder();
+}
+
+function togglePanel(){
+  document.getElementById('orderSide').classList.toggle('open');
+}
+
+init();
 </script>
+
 </body>
 </html>
