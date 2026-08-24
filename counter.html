@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>現場點單 · 杜辛亞咖啡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --white:#FFFFFF; --paper-50:#FDFCFA; --paper-100:#F8F6F1; --paper-200:#F1EEE7;
+    --paper-300:#E6E2D9; --line:#DFDACF;
+    --ink:#2B2A28; --ink-soft:#5F5B54; --ink-mute:#8F8A80;
+    --gold:#C9A56B; --gold-deep:#A9803F; --wood:#7C5A3A;
+    --ok:#5C7A5C; --warn:#A8823C; --alert:#B0604C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:linear-gradient(180deg,#FFFFFF 0%, var(--paper-100) 40%, var(--paper-200) 100%) fixed;
+    color:var(--ink);font-family:'Inter',-apple-system,'Noto Sans TC',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  header.bar{
+    background:linear-gradient(180deg,#FFFFFF,var(--paper-50));
+    border-bottom:1px solid var(--line);
+    padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;
+    position:sticky;top:0;z-index:20;
+  }
+  header.bar .brand{
+    font-family:'Space Grotesk',sans-serif;font-size:15px;letter-spacing:.08em;
+    display:flex;align-items:center;gap:10px;
+  }
+  header.bar .brand .accent{color:var(--gold-deep);}
+  header.bar .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-mute);
+  }
+  .refresh-btn{
+    border:1px solid var(--line);border-radius:2px;
+    background:linear-gradient(180deg,#FFFFFF,var(--paper-100));
+    color:var(--ink-soft);font-size:11.5px;padding:7px 13px;cursor:pointer;font-family:'JetBrains Mono',monospace;
+  }
+  .refresh-btn:hover{border-color:var(--gold);color:var(--gold-deep);}
+
+  .layout{
+    max-width:1180px;margin:0 auto;padding:18px;
+    display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start;
+  }
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;padding:12px;}
+  }
+
+  /* ---------- 分類 chips ---------- */
+  .cat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .cat-chip{
+    padding:8px 16px;border-radius:20px;cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.03em;
+    border:1px solid var(--line);color:var(--ink-soft);
+    background:linear-gradient(180deg,#FFFFFF,var(--paper-100));
+    user-select:none;
+  }
+  .cat-chip:hover{border-color:var(--gold);color:var(--gold-deep);}
+  .cat-chip.active{
+    border-color:var(--gold-deep);color:var(--white);
+    background:linear-gradient(180deg,var(--gold),var(--gold-deep));
+  }
+
+  /* ---------- 商品格 ---------- */
+  .product-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;
+  }
+  .product-tile{
+    background:linear-gradient(180deg,#FFFFFF,var(--paper-50));
+    border:1px solid var(--line);border-radius:3px;padding:13px 12px;
+    cursor:pointer;text-align:left;position:relative;
+    transition:border-color .15s,transform .1s;
+  }
+  .product-tile:hover{border-color:var(--gold);}
+  .product-tile:active{transform:scale(.98);}
+  .product-tile.disabled{cursor:not-allowed;opacity:.5;}
+  .product-tile.disabled:hover{border-color:var(--line);}
+  .pt-name{font-family:'Space Grotesk',sans-serif;font-size:14px;line-height:1.35;margin:0 0 8px;min-height:38px;}
+  .pt-price{font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--gold-deep);}
+  .pt-badge{
+    display:inline-block;margin-top:7px;padding:2px 8px;font-size:10px;border-radius:2px;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .pt-badge.low{background:#FAF1DE;color:var(--warn);}
+  .pt-badge.out{background:#FBEAE5;color:var(--alert);}
+
+  .empty{padding:44px 16px;text-align:center;color:var(--ink-mute);font-size:13px;line-height:1.7;}
+
+  /* ---------- 購物車 ---------- */
+  .cart-panel{
+    background:linear-gradient(180deg,#FFFFFF,var(--paper-50));
+    border:1px solid var(--line);border-radius:3px;padding:16px;
+    position:sticky;top:76px;
+  }
+  @media (max-width:860px){ .cart-panel{position:static;} }
+  .cart-title{font-family:'Space Grotesk',sans-serif;font-size:15px;margin:0 0 12px;display:flex;justify-content:space-between;align-items:center;}
+  .cart-title .cnt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);}
+  .cart-empty{font-size:12.5px;color:var(--ink-mute);padding:20px 0;text-align:center;line-height:1.7;}
+  .cart-item{
+    display:flex;justify-content:space-between;align-items:center;gap:8px;
+    padding:9px 0;border-bottom:1px solid var(--paper-200);
+  }
+  .ci-info{flex:1;min-width:0;}
+  .ci-name{font-size:12.5px;color:var(--ink);}
+  .ci-price{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);margin-top:2px;}
+  .qty-stepper{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .qty-stepper button{
+    width:24px;height:24px;border:1px solid var(--line);border-radius:2px;background:var(--white);
+    cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink-soft);line-height:1;
+  }
+  .qty-stepper button:hover{border-color:var(--gold);color:var(--gold-deep);}
+  .qty-stepper .q{font-family:'JetBrains Mono',monospace;font-size:12.5px;min-width:16px;text-align:center;}
+
+  .cart-summary{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);}
+  .sum-row{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-soft);padding:3px 0;}
+  .sum-row.total{font-size:16px;color:var(--ink);font-family:'JetBrains Mono',monospace;margin-top:4px;}
+
+  .field-block{margin-top:14px;}
+  .field-label{
+    font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;
+    color:var(--ink-mute);letter-spacing:.06em;margin-bottom:5px;display:block;
+  }
+  input.pos-field, select.pos-field, textarea.pos-field{
+    width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:2px;
+    background:var(--white);font-family:inherit;font-size:13px;color:var(--ink);
+  }
+  input.pos-field:focus, select.pos-field:focus, textarea.pos-field:focus{outline:none;border-color:var(--gold);}
+  .coupon-row{display:flex;gap:6px;}
+  .coupon-row input{flex:1;}
+  .coupon-row button{
+    flex-shrink:0;padding:0 12px;border-radius:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;
+    font-size:11px;border:1px solid var(--line);color:var(--ink-soft);
+    background:linear-gradient(180deg,#FFFFFF,var(--paper-100));
+  }
+  .coupon-row button:hover{border-color:var(--gold);color:var(--gold-deep);}
+  .coupon-msg{font-size:11.5px;margin-top:6px;line-height:1.6;}
+  .coupon-msg.ok{color:var(--ok);}
+  .coupon-msg.err{color:var(--alert);}
+
+  .submit-btn{
+    width:100%;margin-top:16px;padding:14px;border-radius:2px;cursor:pointer;
+    font-family:'Space Grotesk',sans-serif;font-size:15px;letter-spacing:.04em;
+    border:1px solid var(--gold-deep);
+    background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:var(--white);
+  }
+  .submit-btn:hover{background:linear-gradient(180deg,var(--gold-deep),var(--wood));}
+  .submit-btn:disabled{opacity:.5;cursor:not-allowed;background:var(--paper-300);border-color:var(--line);color:var(--ink-mute);}
+
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+    background:linear-gradient(180deg,#FFFFFF,var(--paper-100));
+    border:1px solid var(--gold);color:var(--gold-deep);
+    padding:10px 20px;font-size:12px;font-family:'JetBrains Mono',monospace;border-radius:2px;
+    opacity:0;pointer-events:none;transition:opacity .25s;
+    box-shadow:0 4px 16px rgba(124,90,58,.1);z-index:100;max-width:90vw;text-align:center;
+  }
+  .toast.show{opacity:1;}
+  .toast.err{border-color:var(--alert);color:var(--alert);}
+
+  .setup-warn{
+    margin:60px auto;max-width:560px;
+    background:linear-gradient(180deg,#FFFDF8,#F7F0E2);
+    border:1px solid var(--gold);border-radius:2px;padding:18px 20px;
+    font-size:13px;line-height:1.75;color:var(--wood);
+  }
+
+  /* ---------- 完成收據 modal ---------- */
+  .modal-mask{
+    display:none;position:fixed;inset:0;background:rgba(43,42,40,.45);
+    align-items:center;justify-content:center;z-index:200;padding:20px;
+  }
+  .modal-mask.show{display:flex;}
+  .receipt-box{
+    width:100%;max-width:320px;background:var(--white);border-radius:3px;
+    padding:28px 24px;text-align:center;
+  }
+  .receipt-box .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--gold-deep);margin:0 0 10px;
+  }
+  .receipt-box .oid{font-family:'JetBrains Mono',monospace;font-size:20px;margin:0 0 14px;color:var(--ink);}
+  .receipt-box .amt{font-family:'Space Grotesk',sans-serif;font-size:28px;margin:0 0 6px;}
+  .receipt-box .note{font-size:12px;color:var(--ink-mute);margin:0 0 20px;}
+  .receipt-box button{
+    width:100%;padding:12px;border-radius:2px;cursor:pointer;
+    border:1px solid var(--gold-deep);
+    background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:var(--white);
+    font-family:'Space Grotesk',sans-serif;font-size:14px;letter-spacing:.04em;
+  }
+</style>
+</head>
+<body>
+
+<div id="setupWarn" class="setup-warn" style="display:none;"></div>
+
+<div id="app" style="display:none;">
+  <header class="bar">
+    <div class="brand">杜辛亞咖啡 <span class="accent">Dulcinea</span></div>
+    <div class="eyebrow">現場點單台</div>
+    <button class="refresh-btn" onclick="loadCatalog()">重新整理菜單</button>
+  </header>
+
+  <div class="layout">
+    <div>
+      <div class="cat-row" id="catRow"></div>
+      <div class="product-grid" id="productGrid"></div>
+    </div>
+
+    <div class="cart-panel">
+      <div class="cart-title">購物車 <span class="cnt" id="cartCount">0 項</span></div>
+      <div id="cartBody"><div class="cart-empty">尚未加入商品</div></div>
+
+      <div class="cart-summary">
+        <div class="sum-row"><span>小計</span><span id="sumSubtotal">NT$0</span></div>
+        <div class="sum-row" id="discountRow" style="display:none;"><span>折扣</span><span id="sumDiscount">−NT$0</span></div>
+        <div class="sum-row total"><span>合計</span><span id="sumTotal">NT$0</span></div>
+      </div>
+
+      <div class="field-block">
+        <label class="field-label">客人姓名（選填）</label>
+        <input class="pos-field" id="custName" placeholder="現場客人">
+      </div>
+      <div class="field-block">
+        <label class="field-label">電話（選填，會員集點用）</label>
+        <input class="pos-field" id="custPhone" placeholder="0912345678" inputmode="tel">
+      </div>
+      <div class="field-block">
+        <label class="field-label">優惠券代碼</label>
+        <div class="coupon-row">
+          <input class="pos-field" id="couponCode" placeholder="輸入代碼">
+          <button onclick="applyCoupon()">套用</button>
+        </div>
+        <div class="coupon-msg" id="couponMsg"></div>
+      </div>
+      <div class="field-block">
+        <label class="field-label">付款方式</label>
+        <select class="pos-field" id="paymentSelect"></select>
+      </div>
+      <div class="field-block">
+        <label class="field-label">備註（選填）</label>
+        <textarea class="pos-field" id="orderNote" rows="2"></textarea>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="submitOrder()" disabled>送出訂單</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-mask" id="receiptMask">
+  <div class="receipt-box">
+    <div class="eyebrow">已完成</div>
+    <div class="oid" id="receiptId">FC-000000-000</div>
+    <div class="amt" id="receiptTotal">NT$0</div>
+    <div class="note" id="receiptCoupon"></div>
+    <button onclick="closeReceipt()">下一筆</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
+<script>
+let catalog = [];        // get_counter_catalog() 回傳的商品陣列
+let paymentMethods = [];
+let activeCategory = '全部';
+let cart = {};           // { product_id: { name, price, qty, available_qty } }
+let appliedCoupon = null; // { code, kind, discount_type, discount_value, exchange_item }
+
+function showToast(msg, isErr){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isErr ? ' err' : '');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>{ t.className = 'toast'; }, 2600);
+}
+
+function money(n){ return 'NT$' + Number(n||0).toLocaleString('zh-Hant'); }
+
+/* ---------- 開機 ---------- */
+async function boot(){
+  const problem = (typeof configProblem === 'function') ? configProblem() : null;
+  if (problem) {
+    document.getElementById('setupWarn').style.display = 'block';
+    document.getElementById('setupWarn').textContent = '設定尚未完成：' + problem;
+    return;
+  }
+  document.getElementById('app').style.display = 'block';
+  await Promise.all([loadCatalog(), loadPaymentMethods()]);
+}
+
+async function loadCatalog(){
+  const { data, error } = await sb.rpc('get_counter_catalog');
+  if (error || !data || !data.ok) {
+    showToast('讀取菜單失敗，請重新整理頁面', true);
+    return;
+  }
+  catalog = data.products || [];
+  // 依購物車裡目前的數量，把 cart 內項目的 available_qty 同步更新（重新整理菜單後庫存可能變動）
+  Object.keys(cart).forEach(id=>{
+    const p = catalog.find(c=>c.id===id);
+    if (p) cart[id].available_qty = p.available_qty;
+  });
+  renderCategories();
+  renderProducts();
+  renderCart();
+}
+
+async function loadPaymentMethods(){
+  const { data, error } = await sb.from('payment_methods').select('*').eq('enabled', true).order('sort_order');
+  paymentMethods = data || [];
+  const sel = document.getElementById('paymentSelect');
+  if (!paymentMethods.length) {
+    sel.innerHTML = '<option value="">（尚未設定付款方式）</option>';
+    return;
+  }
+  sel.innerHTML = paymentMethods.map(p=>`<option value="${escAttr(p.id)}">${escHtml(p.name)}</option>`).join('');
+  const cash = paymentMethods.find(p=>p.type==='cash');
+  if (cash) sel.value = cash.id;
+}
+
+/* ---------- 分類 chips ---------- */
+function renderCategories(){
+  const cats = ['全部', ...new Set(catalog.map(p=>p.category).filter(Boolean))];
+  if (!cats.includes(activeCategory)) activeCategory = '全部';
+  document.getElementById('catRow').innerHTML = cats.map(c=>
+    `<div class="cat-chip ${c===activeCategory?'active':''}" onclick="selectCategory('${escAttr(c)}')">${escHtml(c)}</div>`
+  ).join('');
+}
+function selectCategory(c){ activeCategory = c; renderCategories(); renderProducts(); }
+
+/* ---------- 商品格 ---------- */
+function renderProducts(){
+  const list = activeCategory==='全部' ? catalog : catalog.filter(p=>p.category===activeCategory);
+  const grid = document.getElementById('productGrid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty">這個分類目前沒有上架的商品</div>';
+    return;
+  }
+  grid.innerHTML = list.map(p=>{
+    const out = p.available_qty <= 0;
+    const low = !out && p.available_qty < 10 && p.available_qty < 999999;
+    let badge = '';
+    if (out) badge = '<span class="pt-badge out">缺貨</span>';
+    else if (low) badge = `<span class="pt-badge low">剩 ${p.available_qty} 份</span>`;
+    return `<div class="product-tile ${out?'disabled':''}" ${out?'':`onclick="addToCart('${escAttr(p.id)}')"`}>
+      <div class="pt-name">${escHtml(p.name)}</div>
+      <div class="pt-price">${money(p.price)}</div>
+      ${badge}
+    </div>`;
+  }).join('');
+}
+
+/* ---------- 購物車 ---------- */
+function addToCart(id){
+  const p = catalog.find(c=>c.id===id);
+  if (!p || p.available_qty <= 0) return;
+  const cur = cart[id];
+  const curQty = cur ? cur.qty : 0;
+  if (p.available_qty < 999999 && curQty + 1 > p.available_qty) {
+    showToast('庫存不夠了，最多只能加 ' + p.available_qty + ' 份', true);
+    return;
+  }
+  if (cur) cur.qty += 1;
+  else cart[id] = { name: p.name, price: p.price, qty: 1, available_qty: p.available_qty };
+  renderCart();
+}
+function changeQty(id, delta){
+  const item = cart[id];
+  if (!item) return;
+  const p = catalog.find(c=>c.id===id);
+  const avail = p ? p.available_qty : item.available_qty;
+  const next = item.qty + delta;
+  if (next <= 0) { delete cart[id]; renderCart(); return; }
+  if (avail < 999999 && next > avail) {
+    showToast('庫存不夠了，最多只能加 ' + avail + ' 份', true);
+    return;
+  }
+  item.qty = next;
+  renderCart();
+}
+function removeFromCart(id){ delete cart[id]; renderCart(); }
+
+function cartSubtotal(){
+  return Object.values(cart).reduce((s,i)=> s + i.price * i.qty, 0);
+}
+function cartDiscount(subtotal){
+  if (!appliedCoupon || appliedCoupon.kind !== 'discount') return 0;
+  let d;
+  if (appliedCoupon.discount_type === 'percent') d = Math.round(subtotal * (1 - appliedCoupon.discount_value / 10));
+  else d = appliedCoupon.discount_value;
+  return Math.min(subtotal, Math.max(0, d));
+}
+
+function renderCart(){
+  const ids = Object.keys(cart);
+  const body = document.getElementById('cartBody');
+  const submitBtn = document.getElementById('submitBtn');
+  document.getElementById('cartCount').textContent = ids.reduce((s,id)=>s+cart[id].qty,0) + ' 項';
+
+  if (!ids.length) {
+    body.innerHTML = '<div class="cart-empty">尚未加入商品</div>';
+    submitBtn.disabled = true;
+  } else {
+    body.innerHTML = ids.map(id=>{
+      const i = cart[id];
+      return `<div class="cart-item">
+        <div class="ci-info">
+          <div class="ci-name">${escHtml(i.name)}</div>
+          <div class="ci-price">${money(i.price)} × ${i.qty}</div>
+        </div>
+        <div class="qty-stepper">
+          <button onclick="changeQty('${escAttr(id)}',-1)">−</button>
+          <span class="q">${i.qty}</span>
+          <button onclick="changeQty('${escAttr(id)}',1)">＋</button>
+        </div>
+      </div>`;
+    }).join('');
+    submitBtn.disabled = false;
+  }
+
+  const subtotal = cartSubtotal();
+  const discount = cartDiscount(subtotal);
+  document.getElementById('sumSubtotal').textContent = money(subtotal);
+  document.getElementById('sumTotal').textContent = money(subtotal - discount);
+  const discountRow = document.getElementById('discountRow');
+  if (discount > 0) {
+    discountRow.style.display = 'flex';
+    document.getElementById('sumDiscount').textContent = '−' + money(discount);
+  } else {
+    discountRow.style.display = 'none';
+  }
+}
+
+/* ---------- 優惠券 ---------- */
+async function applyCoupon(){
+  const codeEl = document.getElementById('couponCode');
+  const msg = document.getElementById('couponMsg');
+  const code = codeEl.value.trim();
+  if (!code) {
+    appliedCoupon = null;
+    msg.textContent = '';
+    renderCart();
+    return;
+  }
+  const { data, error } = await sb.rpc('check_coupon', { p_code: code });
+  if (error || !data || !data.ok) {
+    appliedCoupon = null;
+    msg.className = 'coupon-msg err';
+    msg.textContent = (data && data.reason) ? data.reason : '這張券無法使用';
+    renderCart();
+    return;
+  }
+  appliedCoupon = data;
+  msg.className = 'coupon-msg ok';
+  msg.textContent = data.kind === 'discount'
+    ? '已套用：' + (data.discount_type==='percent' ? data.discount_value+' 折' : '折抵 '+money(data.discount_value))
+    : '已套用兌換券：' + data.exchange_item;
+  renderCart();
+}
+
+/* ---------- 送出訂單 ---------- */
+async function submitOrder(){
+  const ids = Object.keys(cart);
+  if (!ids.length) return;
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = '送出中…';
+
+  const items = ids.map(id => ({ product_id: id, qty: cart[id].qty }));
+  const payment = document.getElementById('paymentSelect').value;
+  const couponCode = appliedCoupon ? document.getElementById('couponCode').value.trim() : '';
+
+  const { data, error } = await sb.rpc('place_counter_order', {
+    p_customer_name: document.getElementById('custName').value.trim(),
+    p_phone: document.getElementById('custPhone').value.trim(),
+    p_note: document.getElementById('orderNote').value.trim(),
+    p_payment: payment,
+    p_coupon_code: couponCode,
+    p_items: items
+  });
+
+  submitBtn.textContent = '送出訂單';
+
+  if (error || !data || !data.ok) {
+    showToast((data && data.reason) ? data.reason : '送出失敗，請再試一次', true);
+    submitBtn.disabled = false;
+    return;
+  }
+
+  document.getElementById('receiptId').textContent = data.order_id;
+  document.getElementById('receiptTotal').textContent = money(data.total);
+  document.getElementById('receiptCoupon').textContent = data.coupon_note || '';
+  document.getElementById('receiptMask').classList.add('show');
+
+  // 重置購物車與表單，重新抓一次菜單同步最新庫存
+  cart = {};
+  appliedCoupon = null;
+  document.getElementById('custName').value = '';
+  document.getElementById('custPhone').value = '';
+  document.getElementById('couponCode').value = '';
+  document.getElementById('couponMsg').textContent = '';
+  document.getElementById('orderNote').value = '';
+  renderCart();
+  loadCatalog();
+}
+function closeReceipt(){
+  document.getElementById('receiptMask').classList.remove('show');
+}
+
+/* ---------- 小工具 ---------- */
+function escHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escAttr(s){ return escHtml(s).replace(/`/g,'&#96;'); }
+
+boot();
+</script>
+</body>
+</html>
