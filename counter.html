@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>現場點單 · CAFE FO+REST</title>
+<title>現場點單 · 杜辛亞咖啡</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -34,8 +34,9 @@
     display:flex;align-items:center;gap:9px;
   }
   .brand .accent{color:var(--gold-deep);}
-  .logo-mark{display:inline-block;width:14px;color:var(--gold);line-height:0;flex-shrink:0;}
-  .logo-mark svg{width:100%;height:auto;display:block;}
+  .logo-mark{
+    display:inline-block;height:26px;width:auto;flex-shrink:0;opacity:.85;
+  }
   .bar-right{display:flex;align-items:center;gap:10px;}
   .today{
     font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);
@@ -247,12 +248,8 @@
 
 <header class="bar">
   <div class="brand">
-    <span class="logo-mark" aria-hidden="true">
-      <svg viewBox="0 0 244 696" xmlns="http://www.w3.org/2000/svg">
-        <path fill="currentColor" d="M0 0 L157 243 L79 243 L200 450 L107 450 L244 696 L0 696 Z"/>
-      </svg>
-    </span>
-    CAFE <span class="accent">FO+REST</span> · 現場點單
+    <img class="logo-mark" src="logo-dulcinea.png" alt="Dulcinea">
+    杜辛亞咖啡 <span class="accent">Dulcinea</span> · 現場點單
   </div>
   <div class="bar-right">
     <span class="today" id="todayCount"></span>

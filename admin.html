@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>後台 · CAFE FO+REST</title>
+<title>後台 · 杜辛亞咖啡</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -32,7 +32,7 @@
     background:linear-gradient(180deg,#FFFFFF,var(--paper-50));
     border:1px solid var(--line);border-radius:3px;padding:32px 28px;
   }
-  .login-logo{width:26px;margin:0 auto 16px;display:block;}
+  .login-logo{display:block;height:52px;width:auto;margin:0 auto 18px;opacity:.88;}
   .login-box .eyebrow{
     font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;
     text-transform:uppercase;color:var(--gold-deep);margin:0 0 10px;text-align:center;
@@ -69,8 +69,9 @@
     display:flex;align-items:center;gap:10px;
   }
   header.bar .brand .accent{color:var(--gold-deep);}
-  .logo-mark{display:inline-block;width:15px;flex-shrink:0;color:var(--gold);line-height:0;}
-  .logo-mark svg{width:100%;height:auto;display:block;}
+  .logo-mark{
+    display:inline-block;height:26px;width:auto;flex-shrink:0;opacity:.85;
+  }
   .bar-actions{display:flex;gap:8px;align-items:center;}
   .signout{
     border:1px solid var(--line);border-radius:2px;
@@ -299,13 +300,9 @@
 <!-- 登入畫面 -->
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
-    <span class="logo-mark login-logo" aria-hidden="true">
-      <svg viewBox="0 0 244 696" xmlns="http://www.w3.org/2000/svg">
-        <path fill="currentColor" d="M0 0 L157 243 L79 243 L200 450 L107 450 L244 696 L0 696 Z"/>
-      </svg>
-    </span>
+    <img class="login-logo" src="logo-dulcinea.png" alt="Dulcinea">
     <p class="eyebrow">Staff Only</p>
-    <h1>CAFE FO+REST 後台</h1>
+    <h1>杜辛亞咖啡 後台</h1>
     <input type="email" id="loginEmail" placeholder="電子郵件" autocomplete="username">
     <input type="password" id="loginPassword" placeholder="密碼" autocomplete="current-password"
            onkeydown="if(event.key==='Enter') signIn()">
@@ -318,12 +315,8 @@
 <div id="app">
   <header class="bar">
     <div class="brand">
-      <span class="logo-mark" aria-hidden="true">
-        <svg viewBox="0 0 244 696" xmlns="http://www.w3.org/2000/svg">
-          <path fill="currentColor" d="M0 0 L157 243 L79 243 L200 450 L107 450 L244 696 L0 696 Z"/>
-        </svg>
-      </span>
-      CAFE <span class="accent">FO+REST</span> · 後台
+      <img class="logo-mark" src="logo-dulcinea.png" alt="Dulcinea">
+      杜辛亞咖啡 <span class="accent">Dulcinea</span> · 後台
     </div>
     <div class="bar-actions">
       <button class="signout" id="soundBtn" onclick="toggleSound()" title="新訂單提示音">🔔 提示音：開</button>
@@ -661,12 +654,12 @@ function updatePendingBadge(){
     badge.textContent = pending > 99 ? '99+' : pending;
     badge.classList.add('show');
     badge.title = `有 ${pending} 筆訂單待處理`;
-    document.title = `(${pending}) 後台 · CAFE FO+REST`;
+    document.title = `(${pending}) 後台 · 杜辛亞咖啡`;
   } else {
     badge.textContent = '';
     badge.classList.remove('show');
     badge.title = '';
-    document.title = '後台 · CAFE FO+REST';
+    document.title = '後台 · 杜辛亞咖啡';
   }
 }
 
