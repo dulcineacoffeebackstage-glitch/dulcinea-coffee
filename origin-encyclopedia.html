@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>產地百科 · 杜辛亞咖啡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --white:#FFFFFF; --paper-50:#FDFCFA; --paper-100:#F8F6F1; --paper-200:#F1EEE7;
+    --paper-300:#E6E2D9; --line:#DFDACF;
+    --ink:#2B2A28; --ink-soft:#5F5B54; --ink-mute:#8F8A80;
+    --gold:#C9A56B; --gold-deep:#A9803F; --wood:#7C5A3A; --ok:#5C7A5C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:radial-gradient(120% 55% at 50% 0%, #FFFFFF 0%, var(--paper-100) 55%, var(--paper-200) 100%) fixed;
+    color:var(--ink);font-family:'Inter',-apple-system,'Noto Sans TC',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  header.hero{
+    background:linear-gradient(168deg,#FFFFFF 0%, var(--paper-50) 50%, var(--paper-200) 100%);
+    border-bottom:1px solid var(--line);
+    padding:38px 22px 30px;position:relative;
+  }
+  header.hero::after{
+    content:'';position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);
+    width:110px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  }
+  header .inner{max-width:1000px;margin:0 auto;}
+  .head-row{display:flex;align-items:flex-start;gap:14px;}
+  .logo-mark{display:block;width:90px;flex-shrink:0;margin-top:2px;}
+  .logo-mark img{width:100%;height:auto;display:block;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--gold-deep);margin:0 0 10px;
+  }
+  header h1{
+    font-family:'Space Grotesk',sans-serif;font-size:25px;margin:0 0 10px;letter-spacing:.04em;
+  }
+  header p{margin:0;font-size:13.5px;color:var(--ink-soft);max-width:46ch;line-height:1.75;}
+  .back{
+    display:inline-block;margin-top:15px;font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--gold-deep);text-decoration:none;
+    border-bottom:1px solid var(--gold);padding-bottom:2px;
+  }
+  .back:hover{color:var(--wood);border-color:var(--wood);}
+
+  .layout{
+    max-width:1000px;margin:0 auto;padding:26px 20px 90px;
+    display:grid;grid-template-columns:1fr;gap:20px;
+  }
+  @media(min-width:840px){ .layout{grid-template-columns:1fr 330px;} }
+
+  .globe-card{
+    position:relative;border:1px solid var(--line);border-radius:3px;
+    background:radial-gradient(circle at 50% 42%, #FFFFFF 0%, var(--paper-50) 60%, var(--paper-200) 100%);
+    aspect-ratio:1/1;max-height:520px;
+  }
+  .globe-mount{width:100%;height:100%;}
+  .hint{
+    position:absolute;top:12px;left:14px;font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;color:var(--ink-mute);transition:opacity .35s;pointer-events:none;
+  }
+  .hint.hide{opacity:0;}
+  .zoombar{
+    position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;align-items:center;gap:7px;
+    background:linear-gradient(180deg,#FFFFFF,var(--paper-100));
+    border:1px solid var(--line);border-radius:20px;padding:9px 7px;
+  }
+  .zoombar button{
+    width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:var(--white);
+    font-size:14px;line-height:1;cursor:pointer;color:var(--ink-soft);padding:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .zoombar button:hover{border-color:var(--gold);color:var(--gold-deep);}
+  .zoombar input[type=range]{
+    writing-mode:vertical-lr;direction:rtl;width:16px;height:70px;accent-color:var(--gold-deep);
+  }
+  .zoombar .zlabel{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--wood);cursor:pointer;}
+
+  .side{display:flex;flex-direction:column;gap:14px;}
+  .info-card{
+    background:linear-gradient(180deg,#FFFFFF,var(--paper-50));
+    border:1px solid var(--line);border-radius:2px;padding:18px;
+  }
+  .info-card .country{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--gold-deep);margin:0 0 6px;
+  }
+  .info-card h2{font-family:'Space Grotesk',sans-serif;font-size:18px;margin:0 0 10px;}
+  .info-card p{font-size:13px;line-height:1.8;color:var(--ink-soft);margin:0;}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:13px;}
+  .tag{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;
+    background:linear-gradient(180deg,var(--paper-50),var(--paper-100));
+    border:1px solid var(--line);padding:3px 9px;color:var(--wood);border-radius:2px;
+  }
+  .instock{
+    display:inline-block;margin-top:13px;font-size:11.5px;color:var(--ok);
+    font-family:'JetBrains Mono',monospace;
+  }
+
+  .region-list{
+    background:var(--white);border:1px solid var(--line);border-radius:2px;
+    max-height:360px;overflow-y:auto;
+  }
+  .region-item{
+    padding:11px 15px;border-bottom:1px solid var(--paper-200);cursor:pointer;
+    display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;
+  }
+  .region-item:last-child{border-bottom:none;}
+  .region-item:hover{background:var(--paper-50);}
+  .region-item.active{
+    background:linear-gradient(90deg,#FFFDF8,#F7F0E2);
+    border-left:2px solid var(--gold-deep);padding-left:13px;
+  }
+  .region-item .continent{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-mute);}
+  .dot-stock{
+    width:6px;height:6px;border-radius:50%;background:var(--ok);
+    display:inline-block;margin-left:5px;vertical-align:middle;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="inner">
+    <div class="head-row">
+      <span class="logo-mark" aria-hidden="true">
+        <img src="logo-dulcinea.png" alt="Dulcinea Coffee logo">
+      </span>
+      <div>
+        <p class="eyebrow">Origin Encyclopedia</p>
+        <h1>咖啡產地百科</h1>
+      </div>
+    </div>
+    <p>拖動地球旋轉，捲動滾輪或用兩指縮放，點選任一產區看風味與產區故事。標有綠點的產區，代表本店目前有供應該產區的豆子。</p>
+    <a class="back" href="index.html">← 回到訂購頁</a>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="globe-card">
+    <div class="globe-mount" id="globeMount"></div>
+    <div class="hint" id="hint">拖動旋轉 · 滾輪或兩指縮放</div>
+    <div class="zoombar">
+      <button type="button" onclick="zoomStep(0.2)" aria-label="放大">＋</button>
+      <input type="range" id="zRange" min="0.7" max="2.4" step="0.05" value="1"
+             oninput="globe && globe.setZoom(Number(this.value))" aria-label="縮放">
+      <div class="zlabel" id="zLabel" onclick="globe && globe.setZoom(1)">1.0×</div>
+      <button type="button" onclick="zoomStep(-0.2)" aria-label="縮小">－</button>
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="info-card" id="infoCard">
+      <p class="country">選擇一個產區</p>
+      <h2>點地球上的標記，或右側清單</h2>
+      <p>每個產區會顯示風味特徵、處理法與產區故事。</p>
+    </div>
+    <div class="region-list" id="regionList"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
+<script src="globe.js"></script>
+<script>
+/* 這份產區清單是品牌內容，不隨庫存變動。
+   目前有供應哪幾支，由下面的 markInStock() 對照資料庫自動標示。 */
+const ORIGINS = [
+  { id:'ETH', name:'耶加雪菲', country:'衣索比亞', continent:'非洲', lat:6.2, lon:38.2,
+    tags:['淺焙','花香','柑橘'], blurb:'咖啡的發源地，高海拔水洗處理，帶明亮的茉莉花香與佛手柑尾韻，是精品咖啡最常見的入門產區。' },
+  { id:'KEN', name:'涅里', country:'肯亞', continent:'非洲', lat:-0.4, lon:36.9,
+    tags:['中焙','莓果','酸質明亮'], blurb:'火山紅土栽培，SL28 與 SL34 品種帶來突出的莓果酸質，是杯測師公認風味最複雜的產區之一。' },
+  { id:'RWA', name:'胡耶', country:'盧安達', continent:'非洲', lat:-2.6, lon:29.7,
+    tags:['水洗','花香','甜感'], blurb:'近年崛起的精品產區，海拔集中在 1700 至 2000 公尺，風味乾淨帶花香甜感。' },
+  { id:'BDI', name:'卡揚札', country:'蒲隆地', continent:'非洲', lat:-3.1, lon:29.6,
+    tags:['水洗','紅茶感','柑橘'], blurb:'與盧安達相鄰的小農產區，風味細緻帶紅茶感，產量少而穩定。' },
+  { id:'YEM', name:'摩卡', country:'葉門', continent:'亞洲', lat:15.4, lon:43.3,
+    tags:['日曬','酒香','香料'], blurb:'最古老的咖啡貿易港之一，傳統日曬處理帶來獨特的酒香與辛香調性。' },
+  { id:'IDN', name:'曼特寧', country:'印尼 蘇門答臘', continent:'亞洲', lat:2.2, lon:99.1,
+    tags:['濕刨法','厚實','木質'], blurb:'特有的濕刨處理法造就深沉厚實的木質與草本調性，低酸厚體是它的招牌特徵。' },
+  { id:'TWN', name:'阿里山', country:'台灣', continent:'亞洲', lat:23.5, lon:120.8,
+    tags:['淺中焙','蜜香','烏龍感'], blurb:'本地小農直送，高山雲霧環境帶來蜜香與淡淡茶感，是店內少數的在地產區。' },
+  { id:'CHN', name:'普洱', country:'中國 雲南', continent:'亞洲', lat:22.8, lon:100.9,
+    tags:['水洗','溫和','花果'], blurb:'近年逐漸受到關注的新興產區，風味溫和帶淡雅花果調性。' },
+  { id:'IND', name:'齋沙', country:'印度', continent:'亞洲', lat:12.4, lon:75.7,
+    tags:['季風處理','低酸','辛香'], blurb:'獨特的季風麥拉巴處理法，生豆在季風中吸濕膨脹，風味低酸帶辛香。' },
+  { id:'COL', name:'薇拉', country:'哥倫比亞', continent:'南美洲', lat:2.5, lon:-76.3,
+    tags:['中焙','焦糖','均衡'], blurb:'安地斯山脈孕育的經典產區，甜感與酸質均衡，適合各種沖煮方式，是日常配方豆的常見基底。' },
+  { id:'BRA', name:'喜拉朵', country:'巴西', continent:'南美洲', lat:-19.9, lon:-47.9,
+    tags:['低酸','堅果','巧克力'], blurb:'全球最大咖啡產國，平緩地形適合機械化採收，風味厚實低酸，常做義式配方基底。' },
+  { id:'PER', name:'卡哈馬卡', country:'秘魯', continent:'南美洲', lat:-7.2, lon:-78.5,
+    tags:['有機','溫和','堅果'], blurb:'多為小農有機栽培，風味溫和，帶輕微堅果與可可調性。' },
+  { id:'PAN', name:'博克特', country:'巴拿馬', continent:'中美洲', lat:8.8, lon:-82.4,
+    tags:['淺中焙','茉莉','蜜桃'], blurb:'翡翠莊園帶起的藝伎品種傳奇，花香與蜜桃甜感突出，是拍賣會常勝軍，價格也居高不下。' },
+  { id:'GTM', name:'安提瓜', country:'瓜地馬拉', continent:'中美洲', lat:14.6, lon:-90.7,
+    tags:['中深焙','巧克力','煙燻'], blurb:'火山土壤與日夜溫差造就厚實酒體，帶淡淡煙燻與辛香尾韻。' },
+  { id:'CRI', name:'塔拉珠', country:'哥斯大黎加', continent:'中美洲', lat:9.6, lon:-83.9,
+    tags:['蜜處理','焦糖','乾淨'], blurb:'蜜處理法的代表產區之一，風味乾淨帶蜂蜜般甜感。' },
+  { id:'SLV', name:'聖塔安娜', country:'薩爾瓦多', continent:'中美洲', lat:13.9, lon:-89.6,
+    tags:['帕卡瑪拉','蜜甜','溫潤'], blurb:'以帕卡瑪拉大顆種聞名，風味溫潤帶蜜糖甜感，體脂厚實。' },
+
+  /* ---- 以下為擴充：涵蓋全球其餘主要咖啡產區 ---- */
+
+  // 非洲
+  { id:'TZA', name:'吉力馬札羅', country:'坦尚尼亞', continent:'非洲', lat:-3.4, lon:37.3,
+    tags:['水洗','明亮酸質','莓果'], blurb:'吉力馬札羅山麓的火山土壤產區，水洗處理帶來明亮酸質與莓果調性，是東非經典產區之一。' },
+  { id:'UGA', name:'布吉蘇', country:'烏干達', continent:'非洲', lat:1.1, lon:34.3,
+    tags:['羅布斯塔','厚實','木質'], blurb:'羅布斯塔原生地之一，象山山麓也產少量精品阿拉比卡，風味厚實帶木質調。' },
+  { id:'COD', name:'基伍', country:'剛果民主共和國', continent:'非洲', lat:-2.5, lon:28.9,
+    tags:['水洗','花香','新興產區'], blurb:'基伍湖畔近年重新受到關注的新興產區，風味乾淨帶花香，潛力被逐漸看見。' },
+  { id:'ZMB', name:'姆布卡', country:'尚比亞', continent:'非洲', lat:-13.1, lon:32.7,
+    tags:['水洗','堅果','均衡'], blurb:'小規模但品質穩定的產區，水洗處理風味均衡，帶淡淡堅果甜感。' },
+  { id:'MWI', name:'姆蘭傑', country:'馬拉威', continent:'非洲', lat:-15.9, lon:35.6,
+    tags:['水洗','柑橘','溫和'], blurb:'姆蘭傑山周邊小農栽培，風味溫和帶柑橘酸質，產量稀少。' },
+  { id:'ZWE', name:'奇平吉', country:'辛巴威', continent:'非洲', lat:-20.2, lon:32.6,
+    tags:['水洗','花香','小產量'], blurb:'東部高地的小產量精品產區，花香明顯，近年產量雖少但品質受矚目。' },
+  { id:'CIV', name:'中西部高地', country:'象牙海岸', continent:'非洲', lat:7.5, lon:-5.5,
+    tags:['羅布斯塔','厚實','木質'], blurb:'西非重要的羅布斯塔產地之一，風味厚實，多用於義式配方與即溶咖啡。' },
+  { id:'CMR', name:'西部高地', country:'喀麥隆', continent:'非洲', lat:5.5, lon:10.4,
+    tags:['水洗','均衡','堅果'], blurb:'火山高地栽培，阿拉比卡與羅布斯塔並存，風味均衡帶堅果調。' },
+
+  // 亞洲與大洋洲
+  { id:'VNM', name:'大叻', country:'越南', continent:'亞洲', lat:11.9, lon:108.4,
+    tags:['羅布斯塔','厚實','巧克力'], blurb:'全球第二大咖啡產國，大叻高原以羅布斯塔為主，風味厚實帶濃郁巧克力調，也是煉乳咖啡的靈魂。' },
+  { id:'PHL', name:'巴丹', country:'菲律賓', continent:'亞洲', lat:14.1, lon:121.2,
+    tags:['巴拉克種','溫和','堅果'], blurb:'少見的巴拉克（Liberica）種咖啡產地，風味獨特溫和，帶淡淡木質與堅果調。' },
+  { id:'THA', name:'清邁', country:'泰國', continent:'亞洲', lat:18.8, lon:98.9,
+    tags:['水洗','花香','新興產區'], blurb:'北部高山轉作咖啡取代罌粟種植的成功案例，水洗處理風味乾淨帶花香。' },
+  { id:'LAO', name:'波羅芬高原', country:'寮國', continent:'亞洲', lat:15.1, lon:106.1,
+    tags:['羅布斯塔','厚實','均衡'], blurb:'法國殖民時期留下的咖啡產區，火山土壤肥沃，風味厚實均衡。' },
+  { id:'MMR', name:'撣邦', country:'緬甸', continent:'亞洲', lat:21.3, lon:98.6,
+    tags:['水洗','溫和','花香'], blurb:'近年在國際評鑑嶄露頭角的新興產區，高海拔水洗處理帶溫和花香調性。' },
+  { id:'TLS', name:'埃爾梅拉', country:'東帝汶', continent:'亞洲', lat:-8.9, lon:125.4,
+    tags:['有機','低酸','溫和'], blurb:'多為原生林間作有機栽培，風味溫和低酸，帶淡淡花果甜感。' },
+  { id:'NPL', name:'卡斯基', country:'尼泊爾', continent:'亞洲', lat:28.2, lon:83.9,
+    tags:['水洗','花香','高海拔'], blurb:'喜馬拉雅山麓的高海拔小農產區，日夜溫差大，風味細緻帶花香酸質。' },
+  { id:'PNG', name:'東部高地', country:'巴布亞紐幾內亞', continent:'大洋洲', lat:-6.3, lon:145.4,
+    tags:['水洗','水果調','明亮'], blurb:'藍山品種血緣的高海拔產區，水洗處理風味明亮，帶熱帶水果調性。' },
+
+  // 中美洲與加勒比海
+  { id:'HND', name:'馬爾卡拉', country:'宏都拉斯', continent:'中美洲', lat:14.6, lon:-87.8,
+    tags:['水洗','焦糖','均衡'], blurb:'中美洲近年產量成長最快的產區之一，風味均衡帶焦糖甜感，性價比高。' },
+  { id:'NIC', name:'希諾特加', country:'尼加拉瓜', continent:'中美洲', lat:13.1, lon:-86.0,
+    tags:['水洗','堅果','溫潤'], blurb:'火山土壤栽培，風味溫潤帶堅果與焦糖調性，是中美洲的均衡代表。' },
+  { id:'MEX', name:'恰帕斯', country:'墨西哥', continent:'中美洲', lat:16.75, lon:-92.6,
+    tags:['水洗','溫和','堅果'], blurb:'與瓜地馬拉接壤的南部高地，多為小農合作社栽培，風味溫和帶堅果甜感。' },
+  { id:'JAM', name:'藍山', country:'牙買加', continent:'中美洲', lat:18.05, lon:-76.7,
+    tags:['水洗','溫潤','均衡'], blurb:'藍山山脈雲霧繚繞的傳奇產區，風味溫潤均衡幾乎無雜味，是身價最高的產區之一。' },
+  { id:'DOM', name:'希瓦奧山', country:'多明尼加', continent:'中美洲', lat:19.0, lon:-70.9,
+    tags:['水洗','溫和','堅果'], blurb:'加勒比海島國產區，風味溫和帶堅果與淡淡花香，多用於在地與美式市場。' },
+  { id:'CUB', name:'土耳其諾', country:'古巴', continent:'中美洲', lat:20.0, lon:-76.8,
+    tags:['水洗','溫潤','低酸'], blurb:'東部山區的傳統產區，風味溫潤低酸，帶濃厚的古巴咖啡文化色彩。' },
+  { id:'HTI', name:'中央高原', country:'海地', continent:'中美洲', lat:19.1, lon:-72.3,
+    tags:['水洗','花果','小農'], blurb:'加勒比海最早的咖啡產地之一，多為小農栽培，風味帶花果調與淡雅甜感。' },
+
+  // 南美洲
+  { id:'ECU', name:'洛哈', country:'厄瓜多', continent:'南美洲', lat:-4.0, lon:-79.2,
+    tags:['水洗','花香','新興產區'], blurb:'安地斯山南段的新興產區，高海拔栽培，風味乾淨帶花香與柑橘酸質。' },
+  { id:'BOL', name:'永加斯', country:'玻利維亞', continent:'南美洲', lat:-16.2, lon:-67.6,
+    tags:['水洗','莓果','高海拔'], blurb:'安地斯山區極高海拔的小農產區，風味帶明亮莓果調，產量稀少而精緻。' },
+  { id:'VEN', name:'塔奇拉', country:'委內瑞拉', continent:'南美洲', lat:7.8, lon:-72.2,
+    tags:['水洗','溫潤','堅果'], blurb:'安地斯山北段的傳統產區，風味溫潤帶堅果與可可調性。' },
+];
+
+let inStock = new Set();
+
+const globe = createGlobe(document.getElementById('globeMount'), ORIGINS, {
+  onSelect: o => { renderInfo(o); highlight(o.id); },
+  onZoom: z => {
+    document.getElementById('zRange').value = z;
+    document.getElementById('zLabel').textContent = z.toFixed(1) + '×';
+  },
+  onDragStart: () => document.getElementById('hint').classList.add('hide')
+});
+function zoomStep(d){ globe.setZoom(globe.getZoom() + d); }
+
+function renderInfo(o){
+  const stocked = inStock.has(o.country);
+  document.getElementById('infoCard').innerHTML = `
+    <p class="country">${esc(o.continent)} · ${esc(o.country)}</p>
+    <h2>${esc(o.name)}</h2>
+    <p>${esc(o.blurb)}</p>
+    <div class="tags">${o.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
+    ${stocked ? '<div class="instock">● 本店目前有供應這個產區的豆子</div>' : ''}`;
+}
+function highlight(id){
+  let target = null;
+  document.querySelectorAll('.region-item').forEach(el => {
+    const on = el.dataset.id === id;
+    el.classList.toggle('active', on);
+    if(on) target = el;
+  });
+  // 讓對應的項目捲進清單可視範圍，但不牽動整個頁面
+  if(target){
+    const box = document.getElementById('regionList');
+    const t = target.getBoundingClientRect();
+    const b = box.getBoundingClientRect();
+    if(t.top < b.top || t.bottom > b.bottom){
+      box.scrollTo({
+        top: box.scrollTop + (t.top - b.top) - (b.height - t.height) / 2,
+        behavior: 'smooth'
+      });
+    }
+  }
+}
+function renderList(){
+  document.getElementById('regionList').innerHTML = ORIGINS.map(o=>`
+    <div class="region-item" data-id="${o.id}" onclick="globe.flyTo('${o.id}')">
+      <span>${esc(o.name)} <span class="continent">· ${esc(o.country)}</span>${
+        inStock.has(o.country) ? '<span class="dot-stock"></span>' : ''}</span>
+      <span class="continent">${esc(o.continent)}</span>
+    </div>`).join('');
+}
+
+/* 對照資料庫，標出目前有上架的產區 */
+async function markInStock(){
+  if(!isConfigured()) return;
+  try{
+    const { data } = await sb.from('products')
+      .select('origin_country').eq('active', true);
+    (data||[]).forEach(p => { if(p.origin_country) inStock.add(p.origin_country); });
+    renderList();
+  }catch(e){ /* 讀不到就只顯示百科內容，不影響瀏覽 */ }
+}
+
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+renderList();
+markInStock();
+</script>
+
+</body>
+</html>
