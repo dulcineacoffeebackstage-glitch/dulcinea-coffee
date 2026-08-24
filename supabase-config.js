@@ -23,9 +23,9 @@
    ============================================================ */
 
 
-const SUPABASE_URL = '在這裡貼上你的 Project URL';
+const SUPABASE_URL = 'https://ndqeetrnevxoftifeysm.supabase.co';
 
-const SUPABASE_PUBLISHABLE_KEY = '在這裡貼上你的 Publishable key';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_Ub119c2pGceWtKHhBrKgnw_lNIsTKFO';
 
 
 /* ------------------------------------------------------------
