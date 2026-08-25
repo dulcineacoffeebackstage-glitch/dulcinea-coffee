@@ -458,6 +458,8 @@
                style="padding:8px 11px;border:1px solid var(--line);border-radius:2px;
                       font-family:inherit;font-size:13px;min-width:180px;">
         <select class="mini" id="newTagKind">
+          <option value="channel">銷售管道</option>
+          <option value="menu">菜單分類</option>
           <option value="flavor">風味</option>
           <option value="roast">烘焙度</option>
           <option value="region">產區</option>
@@ -1342,7 +1344,7 @@ async function addEmployee(){
 
 /* ---------- 標籤管理 ---------- */
 let tagList = [], tagLinks = [];
-const KIND_LABEL = { flavor:'風味', roast:'烘焙度', region:'產區', process:'處理法', other:'其他' };
+const KIND_LABEL = { channel:'銷售管道', menu:'菜單分類', flavor:'風味', roast:'烘焙度', region:'產區', process:'處理法', other:'其他' };
 
 async function loadTags(){
   const [a, b] = await Promise.all([
