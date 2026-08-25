@@ -299,6 +299,81 @@
     border-color:var(--gold-deep);color:var(--white);
     background:linear-gradient(180deg,var(--gold),var(--gold-deep));
   }
+
+  /* ---------- 庫存分組／狀態徽章 ---------- */
+  .mat-group{margin-bottom:22px;}
+  .mat-group-head{
+    display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;
+  }
+  .mat-group-head h3{
+    font-family:'Space Grotesk',sans-serif;font-size:14.5px;margin:0;
+  }
+  .mat-group-head .count{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink-mute);
+  }
+  .chip-status{
+    display:inline-block;padding:2px 8px;font-size:10px;border-radius:2px;
+    font-family:'JetBrains Mono',monospace;white-space:nowrap;letter-spacing:.02em;
+  }
+  .chip-status.low{background:#FBEAE5;color:var(--alert);}
+  .chip-status.warn{background:#FAF1DE;color:var(--warn);}
+  .chip-status.ok{background:#E7EFE7;color:var(--ok);}
+  .chip-status.channel-on{background:#E8EEF4;color:#4A6785;}
+  .chip-status.channel-off{background:var(--paper-200);color:var(--ink-mute);}
+
+  /* ---------- 編輯 Modal ---------- */
+  .modal-overlay{
+    display:none;position:fixed;inset:0;z-index:50;
+    background:rgba(43,42,40,.42);
+    align-items:flex-start;justify-content:center;
+    padding:5vh 16px;overflow-y:auto;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-box{
+    width:100%;max-width:560px;
+    background:linear-gradient(180deg,#FFFFFF,var(--paper-50));
+    border:1px solid var(--line);border-radius:3px;
+    padding:22px 24px 20px;margin-bottom:5vh;
+  }
+  .modal-box h2{
+    font-family:'Space Grotesk',sans-serif;font-size:16.5px;margin:0 0 16px;
+  }
+  .modal-field{margin-bottom:13px;}
+  .modal-field label{
+    display:block;font-family:'JetBrains Mono',monospace;font-size:10.5px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--wood);margin-bottom:5px;
+  }
+  .modal-field input, .modal-field select, .modal-field textarea{
+    width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:2px;
+    background:var(--white);font-family:inherit;font-size:13.5px;color:var(--ink);
+  }
+  .modal-field input:focus, .modal-field select:focus, .modal-field textarea:focus{
+    outline:none;border-color:var(--gold);
+  }
+  .modal-field textarea{resize:vertical;}
+  .modal-row{display:flex;gap:12px;}
+  .modal-row .modal-field{flex:1;}
+  .modal-actions{
+    display:flex;justify-content:flex-end;gap:8px;margin-top:18px;
+    padding-top:14px;border-top:1px solid var(--paper-200);
+  }
+  .modal-hint{font-size:11.5px;color:var(--ink-mute);margin:-6px 0 13px;line-height:1.6;}
+  details.modal-more{margin-top:4px;margin-bottom:6px;}
+  details.modal-more summary{
+    cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10.5px;
+    letter-spacing:.05em;text-transform:uppercase;color:var(--wood);padding:6px 0;
+  }
+
+  .plist-row{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:11px 14px;border-bottom:1px solid var(--paper-200);flex-wrap:wrap;
+  }
+  .plist-row:last-child{border-bottom:none;}
+  .plist-name{font-size:13.5px;}
+  .plist-name .meta{color:var(--ink-mute);font-size:11.5px;margin-left:6px;}
+  .plist-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;}
+  .plist-price{font-family:'JetBrains Mono',monospace;font-size:13px;white-space:nowrap;}
+  .plist-actions{display:flex;gap:6px;}
 </style>
 </head>
 <body>
@@ -332,8 +407,8 @@
 
   <nav>
     <button class="tab active" data-panel="orders">訂單<span class="tab-badge" id="pendingBadge"></span></button>
-    <button class="tab" data-panel="beans">生豆庫存</button>
-    <button class="tab" data-panel="supplies">其他庫存</button>
+    <button class="tab" data-panel="beans">咖啡豆庫存<span class="tab-badge" id="beanLowBadge"></span></button>
+    <button class="tab" data-panel="supplies">物料庫存<span class="tab-badge" id="supplyLowBadge"></span></button>
     <button class="tab" data-panel="bom">用料設定</button>
     <button class="tab" data-panel="products">商品清單</button>
     <button class="tab" data-panel="tags">標籤管理</button>
@@ -359,38 +434,41 @@
       <div id="orderList"><div class="empty">載入中…</div></div>
     </section>
 
-    <!-- 生豆庫存 -->
+    <!-- 咖啡豆庫存 -->
     <section class="panel" id="beans">
       <div class="panel-head">
-        <div><h1 class="panel-title">生豆庫存</h1>
-          <div class="sub">客人下單當下就會依用料設定自動扣除。低於安全水位會標紅</div></div>
+        <div><h1 class="panel-title">咖啡豆庫存</h1>
+          <div class="sub">分「生豆」與「熟豆」兩種狀態。客人下單當下會依用料設定自動扣除，低於安全水位會標紅並在分頁提示</div></div>
         <div class="head-actions">
           <button class="btn ghost" onclick="loadMaterials()">重新整理</button>
-          <button class="btn" onclick="addMaterial('生豆')">＋ 新增生豆</button>
+          <button class="btn" onclick="openMaterialModal(null,'生豆')">＋ 新增生豆</button>
+          <button class="btn" onclick="openMaterialModal(null,'熟豆')">＋ 新增熟豆</button>
         </div>
       </div>
       <div class="stat-row" id="beanStats"></div>
-      <div class="table-wrap"><table>
-        <thead><tr><th>代號</th><th>名稱</th><th>單位</th><th>目前庫存</th><th>安全水位</th><th></th></tr></thead>
-        <tbody id="beanBody"></tbody>
-      </table></div>
+      <div id="beanGroups"></div>
     </section>
 
-    <!-- 其他庫存 -->
+    <!-- 物料庫存 -->
     <section class="panel" id="supplies">
       <div class="panel-head">
-        <div><h1 class="panel-title">其他庫存</h1>
-          <div class="sub">包材、耗材、贈品等非生豆的物料</div></div>
+        <div><h1 class="panel-title">物料庫存</h1>
+          <div class="sub">包材、耗材、食品原料、飲品原料等非咖啡豆的物料。食品／飲品原料可設保鮮期，即將過期會標示提醒</div></div>
         <div class="head-actions">
           <button class="btn ghost" onclick="loadMaterials()">重新整理</button>
-          <button class="btn" onclick="addMaterial('包材')">＋ 新增物料</button>
+          <button class="btn" onclick="openMaterialModal(null,'其他')">＋ 新增物料</button>
         </div>
       </div>
+      <div class="field-inline" style="margin-bottom:16px;">
+        <label class="inline-label">即將過期提醒</label>
+        <span class="sub" style="font-size:12.5px;">到期前</span>
+        <input type="number" min="1" id="expiryWarnDays" value="7"
+               style="width:60px;padding:6px 8px;border:1px solid var(--line);border-radius:2px;font-family:inherit;font-size:13px;">
+        <span class="sub" style="font-size:12.5px;">天開始標示「即將過期」</span>
+        <button class="btn ghost" style="padding:6px 11px;" onclick="saveExpiryWarnDays()">儲存天數</button>
+      </div>
       <div class="stat-row" id="supplyStats"></div>
-      <div class="table-wrap"><table>
-        <thead><tr><th>代號</th><th>名稱</th><th>分類</th><th>單位</th><th>目前庫存</th><th>安全水位</th><th></th></tr></thead>
-        <tbody id="supplyBody"></tbody>
-      </table></div>
+      <div id="supplyGroups"></div>
     </section>
 
     <!-- 用料設定 -->
@@ -418,18 +496,12 @@
     <section class="panel" id="products">
       <div class="panel-head">
         <div><h1 class="panel-title">商品清單</h1>
-          <div class="sub">這裡改的內容會直接顯示在客戶下單頁，包含地球上的產地介紹</div></div>
-        <div class="head-actions"><button class="btn" onclick="addProduct()">＋ 新增豆單</button></div>
+          <div class="sub">咖啡豆、現場飲品、現場餐點都在這裡管理。上架管道與菜單分類改用標籤指定，按「修改」開啟編輯</div></div>
+        <div class="head-actions"><button class="btn" onclick="addProduct()">＋ 新增品項</button></div>
       </div>
-      <div class="table-wrap"><table>
-        <thead><tr>
-          <th>上架</th><th>名稱</th><th>標示</th><th>簡介</th><th>價格</th>
-          <th>產地國家</th><th>緯度</th><th>經度</th><th>產地介紹</th><th></th>
-        </tr></thead>
-        <tbody id="productBody"></tbody>
-      </table></div>
+      <div class="table-wrap"><div id="productBody"></div></div>
       <div class="sub" style="margin-top:10px;">
-        緯度經度可在 Google 地圖上對著產區按右鍵取得。填了才會出現在地球上。
+        產地資訊（國家／緯度／經度／產地介紹）只有咖啡豆需要填，會顯示在客人下單頁的地球上。緯度經度可在 Google 地圖上對著產區按右鍵取得。
       </div>
     </section>
 
@@ -437,20 +509,11 @@
     <section class="panel" id="tags">
       <div class="panel-head">
         <div><h1 class="panel-title">標籤管理</h1>
-          <div class="sub">標籤會顯示在客人的豆單上，也是前台篩選的依據</div></div>
+          <div class="sub">標籤庫（新增／刪除標籤種類）。要幫「特定商品」勾選標籤，請到「商品清單」按修改</div></div>
         <div class="head-actions"><button class="btn ghost" onclick="loadTags()">重新整理</button></div>
       </div>
 
       <h2 style="font-family:'Space Grotesk',sans-serif;font-size:14px;margin:0 0 10px;">
-        為商品指定標籤
-      </h2>
-      <div class="field-inline">
-        <label class="inline-label">選擇商品</label>
-        <select class="mini wide" id="tagProduct" onchange="renderTagAssign()"></select>
-      </div>
-      <div id="tagAssign" style="margin-top:14px;"></div>
-
-      <h2 style="font-family:'Space Grotesk',sans-serif;font-size:14px;margin:32px 0 10px;">
         所有標籤
       </h2>
       <div class="field-inline" style="margin-bottom:12px;">
@@ -595,6 +658,10 @@
 
 <div class="toast" id="toast">已儲存</div>
 
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-config.js"></script>
 <script>
@@ -603,6 +670,7 @@ let orders = [], customers = [], materials = [], products = [],
     surprises = [], goals = [], goalClaims = [];
 let orderWatcher = null;
 let openOrderIds = new Set();
+let siteSettings = {};
 
 /* ---------- 登入 ---------- */
 async function boot(){
@@ -659,6 +727,23 @@ function esc(s){
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function money(n){ return 'NT$ ' + Number(n||0).toLocaleString('en-US'); }
+function genId(prefix){
+  try{ return prefix + '-' + crypto.randomUUID(); }
+  catch(e){ return prefix + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+}
+
+/* ---------- 通用編輯 Modal ---------- */
+function openModal(html){
+  document.getElementById('modalBox').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.getElementById('modalBox').innerHTML = '';
+}
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape') closeModal();
+});
 
 document.querySelectorAll('.tab').forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -678,6 +763,7 @@ document.querySelectorAll('.tab').forEach(btn=>{
 });
 
 async function loadAll(){
+  await loadSiteSettings();          // 先讀「即將過期」提醒天數等設定，庫存分頁才會用到正確的門檻
   await Promise.all([
     loadOrders(), loadMaterials(), loadProducts(),
     loadCoupons(), loadPayments(), loadEmployees(), loadBom(), loadTags(),
@@ -685,8 +771,28 @@ async function loadAll(){
   ]);
   await loadFinance();
   renderBom();
-  renderTagAssign();
+  renderProducts();
   startOrderWatch();
+}
+
+/* ---------- 站台設定（key/value，目前用來存「即將過期」提醒天數） ---------- */
+async function loadSiteSettings(){
+  const { data } = await sb.from('site_settings').select('*');
+  siteSettings = {};
+  (data || []).forEach(r => { siteSettings[r.key] = r.value; });
+  EXPIRY_WARN_DAYS = Number(siteSettings.expiry_warn_days) || 7;
+}
+async function saveExpiryWarnDays(){
+  const el = document.getElementById('expiryWarnDays');
+  const val = Math.max(1, Math.round(Number(el.value)) || 7);
+  el.value = val;
+  const { error } = await sb.from('site_settings')
+    .upsert({ key: 'expiry_warn_days', value: String(val) });
+  if(error) return showToast('儲存失敗：' + error.message);
+  EXPIRY_WARN_DAYS = val;
+  siteSettings.expiry_warn_days = String(val);
+  showToast('已儲存提醒天數');
+  renderMaterials();
 }
 
 /* ---------- 訂單 ---------- */
@@ -839,83 +945,194 @@ function buildCustomers(){
   renderCoupons();
 }
 
-/* ---------- 物料（生豆／其他分開顯示） ---------- */
+/* ---------- 物料（咖啡豆／物料庫存分開顯示） ---------- */
+const BEAN_CATS = ['生豆','熟豆'];
+const SUPPLY_CATS = ['包材','耗材','食品原料','飲品原料'];
+const FOOD_CATS = ['食品原料','飲品原料'];
+let EXPIRY_WARN_DAYS = 7;   // 到期前幾天開始標示「即將過期」，可在「物料庫存」頁自訂並存進 site_settings
+
+function isBeanCat(cat){ return BEAN_CATS.includes(cat); }
+function isFoodCat(cat){ return FOOD_CATS.includes(cat); }
+function isLowStock(m){ return Number(m.stock) < Number(m.safety_stock); }
+function expiryState(m){
+  if(!m.expiry_date) return null;
+  const today = new Date(new Date().toDateString());
+  const days = Math.ceil((new Date(m.expiry_date) - today) / 86400000);
+  if(days < 0) return 'expired';
+  if(days <= EXPIRY_WARN_DAYS) return 'soon';
+  return null;
+}
+
 async function loadMaterials(){
-  const { data } = await sb.from('materials').select('*').order('category').order('id');
+  const { data } = await sb.from('materials').select('*').order('category').order('name');
   materials = data || [];
   renderMaterials();
   renderBom();
 }
-function isBean(m){ return (m.category || '').includes('生豆'); }
+
+function statusChips(m, showExpiry){
+  let chips = '';
+  if(isLowStock(m)) chips += `<span class="chip-status low">庫存偏低</span>`;
+  if(showExpiry){
+    const es = expiryState(m);
+    if(es === 'expired') chips += `<span class="chip-status low">已過期</span>`;
+    else if(es === 'soon') chips += `<span class="chip-status warn">即將過期</span>`;
+  }
+  return chips || `<span class="chip-status ok">正常</span>`;
+}
+function matRow(m, showExpiry){
+  const i = materials.indexOf(m);
+  return `<tr>
+    <td>${esc(m.name)}</td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:11.5px;">${esc(m.unit)}</td>
+    <td class="${isLowStock(m)?'stock-low':''}" style="font-family:'JetBrains Mono',monospace;">${m.stock}</td>
+    <td style="font-family:'JetBrains Mono',monospace;color:var(--ink-mute);">${m.safety_stock}</td>
+    ${showExpiry ? `<td style="font-family:'JetBrains Mono',monospace;font-size:12px;${expiryState(m)?'color:var(--alert);':''}">${esc(m.expiry_date || '—')}</td>` : ''}
+    <td>${statusChips(m, showExpiry)}</td>
+    <td><div class="btn-row" style="gap:6px;flex-wrap:nowrap;">
+      <button class="btn ghost" style="padding:6px 11px;" onclick="openMaterialModal(${i})">修改</button>
+      <button class="btn danger" onclick="removeMaterial(${i})">刪除</button>
+    </div></td>
+  </tr>`;
+}
+function matGroupHtml(title, rows, showExpiry, emptyMsg){
+  const cols = showExpiry
+    ? '<th>名稱</th><th>單位</th><th>目前庫存</th><th>安全水位</th><th>保鮮期限</th><th>狀態</th><th></th>'
+    : '<th>名稱</th><th>單位</th><th>目前庫存</th><th>安全水位</th><th>狀態</th><th></th>';
+  return `
+    <div class="mat-group">
+      <div class="mat-group-head"><h3>${esc(title)}</h3><span class="count">${rows.length} 項</span></div>
+      <div class="table-wrap"><table>
+        <thead><tr>${cols}</tr></thead>
+        <tbody>${rows.map(m=>matRow(m, showExpiry)).join('') || `<tr><td colspan="${showExpiry?7:6}" class="empty">${emptyMsg}</td></tr>`}</tbody>
+      </table></div>
+    </div>`;
+}
 
 function renderMaterials(){
-  const beans = materials.filter(isBean);
-  const supplies = materials.filter(m => !isBean(m));
+  const expiryInput = document.getElementById('expiryWarnDays');
+  if(expiryInput && document.activeElement !== expiryInput) expiryInput.value = EXPIRY_WARN_DAYS;
 
-  const lowB = beans.filter(m => Number(m.stock) < Number(m.safety_stock)).length;
+  const beans = materials.filter(m => isBeanCat(m.category));
+  const supplies = materials.filter(m => !isBeanCat(m.category));
+
+  const lowB = beans.filter(isLowStock).length;
   document.getElementById('beanStats').innerHTML = `
-    <div class="stat"><div class="num">${beans.length}</div><div class="lbl">生豆種類</div></div>
+    <div class="stat"><div class="num">${beans.length}</div><div class="lbl">咖啡豆種類</div></div>
     <div class="stat"><div class="num" style="color:${lowB?'var(--alert)':'var(--ok)'}">${lowB}</div>
       <div class="lbl">低於安全水位</div></div>`;
+  const beanBadge = document.getElementById('beanLowBadge');
+  if(lowB > 0){ beanBadge.textContent = lowB; beanBadge.classList.add('show'); beanBadge.title = `有 ${lowB} 種咖啡豆低於安全水位`; }
+  else { beanBadge.textContent = ''; beanBadge.classList.remove('show'); beanBadge.title=''; }
 
-  const lowS = supplies.filter(m => Number(m.stock) < Number(m.safety_stock)).length;
+  document.getElementById('beanGroups').innerHTML =
+    matGroupHtml('生豆', beans.filter(m=>m.category==='生豆'), false, '尚無生豆資料') +
+    matGroupHtml('熟豆', beans.filter(m=>m.category==='熟豆'), false, '尚無熟豆資料');
+
+  const lowS = supplies.filter(isLowStock).length;
+  const expiringS = supplies.filter(m => isFoodCat(m.category) && expiryState(m)).length;
   document.getElementById('supplyStats').innerHTML = `
     <div class="stat"><div class="num">${supplies.length}</div><div class="lbl">物料種類</div></div>
     <div class="stat"><div class="num" style="color:${lowS?'var(--alert)':'var(--ok)'}">${lowS}</div>
-      <div class="lbl">低於安全水位</div></div>`;
+      <div class="lbl">低於安全水位</div></div>
+    <div class="stat"><div class="num" style="color:${expiringS?'var(--alert)':'var(--ok)'}">${expiringS}</div>
+      <div class="lbl">即將／已過期</div></div>`;
+  const supplyBadge = document.getElementById('supplyLowBadge');
+  const supplyAlerts = lowS + expiringS;
+  if(supplyAlerts > 0){ supplyBadge.textContent = supplyAlerts; supplyBadge.classList.add('show'); supplyBadge.title = `有 ${supplyAlerts} 項物料需要注意`; }
+  else { supplyBadge.textContent = ''; supplyBadge.classList.remove('show'); supplyBadge.title=''; }
 
-  document.getElementById('beanBody').innerHTML = beans.map(m => {
-    const i = materials.indexOf(m);
-    return `<tr>
-      <td style="font-family:'JetBrains Mono',monospace;font-size:11.5px;">${esc(m.id)}</td>
-      <td><input class="cell" value="${esc(m.name)}" onchange="saveMaterial(${i},'name',this.value)"></td>
-      <td><input class="cell" value="${esc(m.unit)}" onchange="saveMaterial(${i},'unit',this.value)"></td>
-      <td><input class="cell ${Number(m.stock)<Number(m.safety_stock)?'stock-low':''}" type="number"
-                 value="${m.stock}" onchange="saveMaterial(${i},'stock',Number(this.value))"></td>
-      <td><input class="cell" type="number" value="${m.safety_stock}"
-                 onchange="saveMaterial(${i},'safety_stock',Number(this.value))"></td>
-      <td><button class="btn danger" onclick="removeMaterial(${i})">刪除</button></td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="6" class="empty">尚無生豆資料</td></tr>';
-
-  document.getElementById('supplyBody').innerHTML = supplies.map(m => {
-    const i = materials.indexOf(m);
-    return `<tr>
-      <td style="font-family:'JetBrains Mono',monospace;font-size:11.5px;">${esc(m.id)}</td>
-      <td><input class="cell" value="${esc(m.name)}" onchange="saveMaterial(${i},'name',this.value)"></td>
-      <td><input class="cell" value="${esc(m.category)}" onchange="saveMaterial(${i},'category',this.value)"></td>
-      <td><input class="cell" value="${esc(m.unit)}" onchange="saveMaterial(${i},'unit',this.value)"></td>
-      <td><input class="cell ${Number(m.stock)<Number(m.safety_stock)?'stock-low':''}" type="number"
-                 value="${m.stock}" onchange="saveMaterial(${i},'stock',Number(this.value))"></td>
-      <td><input class="cell" type="number" value="${m.safety_stock}"
-                 onchange="saveMaterial(${i},'safety_stock',Number(this.value))"></td>
-      <td><button class="btn danger" onclick="removeMaterial(${i})">刪除</button></td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="7" class="empty">尚無其他物料</td></tr>';
+  const otherCat = supplies.filter(m => !SUPPLY_CATS.includes(m.category));
+  document.getElementById('supplyGroups').innerHTML =
+    matGroupHtml('包材', supplies.filter(m=>m.category==='包材'), false, '尚無包材') +
+    matGroupHtml('耗材', supplies.filter(m=>m.category==='耗材'), false, '尚無耗材') +
+    matGroupHtml('食品原料', supplies.filter(m=>m.category==='食品原料'), true, '尚無食品原料') +
+    matGroupHtml('飲品原料', supplies.filter(m=>m.category==='飲品原料'), true, '尚無飲品原料') +
+    (otherCat.length ? matGroupHtml('其他物料', otherCat, false, '') : '');
 }
-async function saveMaterial(i, field, val){
-  const { error } = await sb.from('materials').update({ [field]: val }).eq('id', materials[i].id);
-  if(error) return showToast('儲存失敗');
-  materials[i][field] = val; showToast(); renderMaterials();
+
+/* ---------- 物料新增／修改 Modal ---------- */
+function openMaterialModal(i, presetCategory){
+  const isNew = (i === null || i === undefined);
+  const m = isNew ? {
+    name:'', category: presetCategory || '包材',
+    unit: (presetCategory==='生豆'||presetCategory==='熟豆') ? 'g' : '個',
+    stock:0, safety_stock:0, expiry_date:null
+  } : materials[i];
+  const isBeanRow = isBeanCat(m.category);
+  const allCats = isBeanRow ? BEAN_CATS.slice() : SUPPLY_CATS.concat(['其他']);
+
+  openModal(`
+    <h2>${isNew ? '新增' : '修改'}${isBeanRow ? '咖啡豆' : '物料'}</h2>
+    <div class="modal-field">
+      <label>名稱</label>
+      <input id="mf_name" value="${esc(m.name)}" placeholder="例如：衣索比亞 耶加雪菲 生豆">
+    </div>
+    <div class="modal-hint">名稱就是識別依據，不需要另外輸入代號。同分類底下請避免重複命名。</div>
+    <div class="modal-row">
+      <div class="modal-field">
+        <label>分類</label>
+        <select id="mf_category" onchange="document.getElementById('mf_expiry_wrap').style.display = ['食品原料','飲品原料'].includes(this.value) ? '' : 'none';">
+          ${allCats.map(c=>`<option value="${esc(c)}" ${m.category===c?'selected':''}>${esc(c)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>單位</label>
+        <input id="mf_unit" value="${esc(m.unit)}" placeholder="g / 個 / 包">
+      </div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-field">
+        <label>目前庫存</label>
+        <input id="mf_stock" type="number" step="any" value="${m.stock}">
+      </div>
+      <div class="modal-field">
+        <label>安全水位</label>
+        <input id="mf_safety" type="number" step="any" value="${m.safety_stock}">
+      </div>
+    </div>
+    <div class="modal-field" id="mf_expiry_wrap" style="${isFoodCat(m.category)?'':'display:none;'}">
+      <label>保鮮期限（到期日）</label>
+      <input id="mf_expiry" type="date" value="${m.expiry_date || ''}">
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">取消</button>
+      <button class="btn" onclick="saveMaterialModal(${isNew ? 'null' : i})">${isNew ? '新增' : '儲存'}</button>
+    </div>
+  `);
+}
+async function saveMaterialModal(i){
+  const name = document.getElementById('mf_name').value.trim();
+  if(!name) return showToast('請輸入名稱');
+  const category = document.getElementById('mf_category').value;
+  const unit = document.getElementById('mf_unit').value.trim() || '個';
+  const stock = Number(document.getElementById('mf_stock').value) || 0;
+  const safety_stock = Number(document.getElementById('mf_safety').value) || 0;
+  const expiryEl = document.getElementById('mf_expiry');
+  const expiry_date = (expiryEl && expiryEl.value) ? expiryEl.value : null;
+
+  const dup = materials.some((m, idx) => idx !== i && m.name === name && m.category === category);
+  if(dup) return showToast('已有同名的「' + category + '」項目，請換個名稱');
+
+  const payload = { name, category, unit, stock, safety_stock, expiry_date };
+
+  if(i === null){
+    const { error } = await sb.from('materials').insert({ id: genId('MAT'), ...payload });
+    if(error) return showToast('新增失敗：' + error.message);
+    showToast('已新增');
+  } else {
+    const { error } = await sb.from('materials').update(payload).eq('id', materials[i].id);
+    if(error) return showToast('儲存失敗：' + error.message);
+    showToast('已儲存');
+  }
+  closeModal();
+  await loadMaterials();
 }
 async function removeMaterial(i){
   if(!confirm('確定刪除「'+materials[i].name+'」？')) return;
   const { error } = await sb.from('materials').delete().eq('id', materials[i].id);
   if(error) return showToast('刪除失敗：可能還有商品的用料設定在用它');
   showToast('已刪除'); loadMaterials();
-}
-async function addMaterial(category){
-  const id = prompt(category === '生豆'
-    ? '請輸入生豆代號（英數字，例如 RAW-KEN）'
-    : '請輸入物料代號（英數字，例如 PK-BOX）');
-  if(!id) return;
-  const { error } = await sb.from('materials').insert({
-    id: id.trim().toUpperCase(), name: category==='生豆' ? '新生豆' : '新物料',
-    category: category || '包材', unit: category==='生豆' ? 'g' : '個',
-    stock: 0, safety_stock: 0
-  });
-  if(error) return showToast('新增失敗：代號可能重複了');
-  showToast('已新增'); loadMaterials();
 }
 
 /* ---------- 用料設定 ---------- */
@@ -979,27 +1196,40 @@ async function saveBom(productId, materialId, qty){
 async function loadProducts(){
   const { data } = await sb.from('products').select('*').order('sort_order');
   products = data || [];
-  document.getElementById('productBody').innerHTML = products.map((p,i)=>`
-    <tr>
-      <td style="text-align:center;"><input type="checkbox" ${p.active?'checked':''}
-          style="accent-color:var(--gold-deep);" onchange="saveProduct(${i},'active',this.checked)"></td>
-      <td><input class="cell" value="${esc(p.name)}" onchange="saveProduct(${i},'name',this.value)"></td>
-      <td><input class="cell" value="${esc(p.meta)}" onchange="saveProduct(${i},'meta',this.value)"></td>
-      <td><textarea class="cell" rows="2" onchange="saveProduct(${i},'description',this.value)">${esc(p.description)}</textarea></td>
-      <td><input class="cell" type="number" value="${p.price}" onchange="saveProduct(${i},'price',Number(this.value))"></td>
-      <td><input class="cell" value="${esc(p.origin_country)}" onchange="saveProduct(${i},'origin_country',this.value)"></td>
-      <td><input class="cell" type="number" step="0.1" value="${p.origin_lat ?? ''}" onchange="saveProduct(${i},'origin_lat',this.value===''?null:Number(this.value))"></td>
-      <td><input class="cell" type="number" step="0.1" value="${p.origin_lon ?? ''}" onchange="saveProduct(${i},'origin_lon',this.value===''?null:Number(this.value))"></td>
-      <td><textarea class="cell" rows="2" onchange="saveProduct(${i},'origin_blurb',this.value)">${esc(p.origin_blurb)}</textarea></td>
-      <td><button class="btn danger" onclick="removeProduct(${i})">刪除</button></td>
-    </tr>`).join('') || '<tr><td colspan="10" class="empty">尚無商品</td></tr>';
+  renderProducts();
 }
-async function saveProduct(i, field, val){
-  const { error } = await sb.from('products').update({ [field]: val }).eq('id', products[i].id);
-  if(error) return showToast('儲存失敗');
-  products[i][field] = val;
-  showToast('已儲存，前台會同步');
-  if(field === 'name') renderBom();
+function productOwnTags(pid){
+  const ids = new Set(tagLinks.filter(l => l.product_id === pid).map(l => l.tag_id));
+  return tagList.filter(t => ids.has(t.id));
+}
+function productChannelBadge(pid){
+  const own = productOwnTags(pid);
+  const online = own.some(t => t.kind === 'channel' && t.name === '線上商店');
+  const counter = own.some(t => t.kind === 'channel' && t.name === '現場點單');
+  if(online && counter) return `<span class="chip-status channel-on">線上＋現場</span>`;
+  if(online) return `<span class="chip-status channel-on">線上商店</span>`;
+  if(counter) return `<span class="chip-status channel-on">現場點單</span>`;
+  return `<span class="chip-status channel-off">尚未上架</span>`;
+}
+function productOtherBadges(pid){
+  return productOwnTags(pid).filter(t => t.kind !== 'channel')
+    .map(t => `<span class="chip-status channel-off">${esc(t.name)}</span>`).join('');
+}
+function renderProducts(){
+  const body = document.getElementById('productBody');
+  if(!body) return;
+  body.innerHTML = products.map((p,i)=>`
+    <div class="plist-row">
+      <div>
+        <div class="plist-name">${esc(p.name)}<span class="meta">${esc(p.meta||'')}</span></div>
+        <div class="plist-badges">${productChannelBadge(p.id)}${productOtherBadges(p.id)}</div>
+      </div>
+      <div class="plist-price">${money(p.price)}</div>
+      <div class="plist-actions">
+        <button class="btn ghost" onclick="openProductModal(${i})">修改</button>
+        <button class="btn danger" onclick="removeProduct(${i})">刪除</button>
+      </div>
+    </div>`).join('') || '<div class="empty">尚無商品</div>';
 }
 async function removeProduct(i){
   if(!confirm('確定刪除「'+products[i].name+'」？舊訂單的紀錄不會受影響。')) return;
@@ -1008,15 +1238,115 @@ async function removeProduct(i){
   showToast('已刪除'); loadProducts();
 }
 async function addProduct(){
-  const id = prompt('請輸入商品代號（英數字，例如 GB-KEN）');
-  if(!id) return;
-  const { error } = await sb.from('products').insert({
-    id: id.trim().toUpperCase(), name:'新豆單', meta:'烘焙度 · 風味',
-    description:'', price:0, active:false, sort_order:(products.length+1)
-  });
-  if(error) return showToast('新增失敗：代號可能重複了');
-  showToast('已新增，記得到「用料設定」設定扣料');
+  const id = genId('PRD');
+  const { data, error } = await sb.from('products').insert({
+    id, name:'新品項', meta:'', description:'', price:0,
+    active:false, sort_order:(products.length+1)
+  }).select().single();
+  if(error) return showToast('新增失敗：' + error.message);
+  showToast('已新增，請填寫詳細內容並選擇上架管道');
   await loadProducts();
+  const idx = products.findIndex(p => p.id === (data && data.id));
+  if(idx >= 0) openProductModal(idx);
+}
+
+/* ---------- 商品編輯 Modal（含上架管道／分類標籤） ---------- */
+function openProductModal(i){
+  const p = products[i];
+  const ownIds = new Set(tagLinks.filter(l => l.product_id === p.id).map(l => l.tag_id));
+  const byKind = {};
+  tagList.forEach(t => (byKind[t.kind] = byKind[t.kind] || []).push(t));
+
+  const tagBlocks = Object.keys(KIND_LABEL).filter(k => byKind[k]).map(k => `
+    <div class="tag-kind-block" style="padding:11px 13px;margin-bottom:8px;">
+      <h4 style="margin:0 0 8px;">${KIND_LABEL[k]}</h4>
+      <div class="tag-list">
+        ${byKind[k].map(t => `
+          <span class="tag-check ${ownIds.has(t.id)?'on':''}" data-tag-id="${t.id}"
+                onclick="this.classList.toggle('on')">
+            ${ownIds.has(t.id) ? '✓ ' : ''}${esc(t.name)}
+          </span>`).join('')}
+      </div>
+    </div>`).join('') || '<div class="empty" style="padding:14px;">尚無標籤，請先到「標籤管理」新增</div>';
+
+  openModal(`
+    <h2>修改商品 — ${esc(p.name)}</h2>
+    <div class="modal-field"><label>名稱</label><input id="pf_name" value="${esc(p.name)}"></div>
+    <div class="modal-row">
+      <div class="modal-field"><label>標示（烘焙度／風味等，選填）</label><input id="pf_meta" value="${esc(p.meta||'')}"></div>
+      <div class="modal-field"><label>價格</label><input id="pf_price" type="number" value="${p.price}"></div>
+    </div>
+    <div class="modal-field"><label>簡介</label><textarea id="pf_desc" rows="2">${esc(p.description||'')}</textarea></div>
+
+    <div class="modal-field">
+      <label>上架管道與分類（標籤）</label>
+      <div class="modal-hint">勾選「線上商店」「現場點單」決定會出現在哪個下單頁；兩個都勾＝兩者皆是；都不勾＝暫不上架。</div>
+      <div id="pf_tags">${tagBlocks}</div>
+    </div>
+
+    <details class="modal-more">
+      <summary>產地資訊（僅咖啡豆需要填，會顯示在客人下單頁的地球上）</summary>
+      <div class="modal-row" style="margin-top:10px;">
+        <div class="modal-field"><label>產地國家</label><input id="pf_country" value="${esc(p.origin_country||'')}"></div>
+        <div class="modal-field"><label>顯示排序</label><input id="pf_sort" type="number" value="${p.sort_order||0}"></div>
+      </div>
+      <div class="modal-row">
+        <div class="modal-field"><label>緯度</label><input id="pf_lat" type="number" step="0.1" value="${p.origin_lat ?? ''}"></div>
+        <div class="modal-field"><label>經度</label><input id="pf_lon" type="number" step="0.1" value="${p.origin_lon ?? ''}"></div>
+      </div>
+      <div class="modal-field"><label>產地介紹</label><textarea id="pf_blurb" rows="2">${esc(p.origin_blurb||'')}</textarea></div>
+    </details>
+
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">取消</button>
+      <button class="btn" onclick="saveProductModal(${i})">儲存</button>
+    </div>
+  `);
+}
+async function saveProductModal(i){
+  const p = products[i];
+  const name = document.getElementById('pf_name').value.trim();
+  if(!name) return showToast('請輸入名稱');
+
+  const latEl = document.getElementById('pf_lat');
+  const lonEl = document.getElementById('pf_lon');
+  const payload = {
+    name,
+    meta: document.getElementById('pf_meta').value,
+    price: Number(document.getElementById('pf_price').value) || 0,
+    description: document.getElementById('pf_desc').value,
+    origin_country: document.getElementById('pf_country').value,
+    origin_lat: latEl.value === '' ? null : Number(latEl.value),
+    origin_lon: lonEl.value === '' ? null : Number(lonEl.value),
+    origin_blurb: document.getElementById('pf_blurb').value,
+    sort_order: Number(document.getElementById('pf_sort').value) || 0
+  };
+
+  const selectedTagIds = Array.from(document.querySelectorAll('#pf_tags .tag-check.on'))
+    .map(el => Number(el.dataset.tagId));
+  const online = tagList.find(t => t.kind === 'channel' && t.name === '線上商店');
+  const counter = tagList.find(t => t.kind === 'channel' && t.name === '現場點單');
+  payload.active = (online && selectedTagIds.includes(online.id)) || (counter && selectedTagIds.includes(counter.id));
+
+  const { error } = await sb.from('products').update(payload).eq('id', p.id);
+  if(error) return showToast('儲存失敗：' + error.message);
+
+  const currentIds = new Set(tagLinks.filter(l => l.product_id === p.id).map(l => l.tag_id));
+  const nextIds = new Set(selectedTagIds);
+  const toAdd = [...nextIds].filter(id => !currentIds.has(id));
+  const toRemove = [...currentIds].filter(id => !nextIds.has(id));
+
+  if(toAdd.length){
+    const { error: e1 } = await sb.from('product_tags').insert(toAdd.map(tag_id => ({ product_id: p.id, tag_id })));
+    if(e1) showToast('標籤更新失敗：' + e1.message);
+  }
+  for(const tag_id of toRemove){
+    await sb.from('product_tags').delete().eq('product_id', p.id).eq('tag_id', tag_id);
+  }
+
+  showToast('已儲存，前台會同步');
+  closeModal();
+  await Promise.all([loadProducts(), loadTags()]);
   renderBom();
 }
 
@@ -1360,56 +1690,7 @@ async function loadTags(){
   tagList = a.data || [];
   tagLinks = b.data || [];
   renderTagLibrary();
-  renderTagAssign();
-}
-
-function renderTagAssign(){
-  const sel = document.getElementById('tagProduct');
-  if(!sel) return;
-  if(!products.length){
-    sel.innerHTML = '<option>尚無商品</option>';
-    document.getElementById('tagAssign').innerHTML =
-      '<div class="empty">請先到商品清單新增豆單</div>';
-    return;
-  }
-  const keep = sel.value;
-  sel.innerHTML = products.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
-  if(keep && products.some(p => p.id === keep)) sel.value = keep;
-
-  const pid = sel.value;
-  const own = new Set(tagLinks.filter(l => l.product_id === pid).map(l => l.tag_id));
-  const byKind = {};
-  tagList.forEach(t => (byKind[t.kind] = byKind[t.kind] || []).push(t));
-
-  document.getElementById('tagAssign').innerHTML =
-    Object.keys(KIND_LABEL).filter(k => byKind[k]).map(k => `
-      <div class="tag-kind-block">
-        <h4>${KIND_LABEL[k]}</h4>
-        <div class="tag-list">
-          ${byKind[k].map(t => `
-            <span class="tag-check ${own.has(t.id)?'on':''}"
-                  onclick="toggleTag('${esc(pid)}',${t.id},${own.has(t.id)})">
-              ${own.has(t.id) ? '✓ ' : ''}${esc(t.name)}
-            </span>`).join('')}
-        </div>
-      </div>`).join('') || '<div class="empty">尚無標籤，請在下方新增</div>';
-}
-
-async function toggleTag(productId, tagId, isOn){
-  if(isOn){
-    const { error } = await sb.from('product_tags')
-      .delete().eq('product_id', productId).eq('tag_id', tagId);
-    if(error) return showToast('移除失敗');
-  } else {
-    const { error } = await sb.from('product_tags')
-      .insert({ product_id: productId, tag_id: tagId });
-    if(error) return showToast('加入失敗');
-  }
-  const r = await sb.from('product_tags').select('*');
-  tagLinks = r.data || [];
-  showToast('標籤已更新，前台會同步');
-  renderTagAssign();
-  renderTagLibrary();
+  renderProducts();
 }
 
 function renderTagLibrary(){
