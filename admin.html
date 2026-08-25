@@ -333,6 +333,8 @@
     <button class="tab" data-panel="tags">標籤管理</button>
     <button class="tab" data-panel="customers">客戶資料</button>
     <button class="tab" data-panel="coupons">客戶回饋</button>
+    <button class="tab" data-panel="surprises">驚喜設定</button>
+    <button class="tab" data-panel="goals">護照獎勵</button>
     <button class="tab" data-panel="payments">付款設定</button>
     <button class="tab" data-panel="finance">財務報表</button>
     <button class="tab" data-panel="payroll">員工薪資</button>
@@ -495,6 +497,46 @@
       </div>
     </section>
 
+    <!-- 驚喜設定 -->
+    <section class="panel" id="surprises">
+      <div class="panel-head">
+        <div><h1 class="panel-title">當日驚喜設定</h1>
+          <div class="sub">客人翻開風味護照時，會依機率權重抽到一個驚喜。同一支電話同一天結果固定</div></div>
+        <div class="head-actions"><button class="btn" onclick="addSurprise()">＋ 新增驚喜選項</button></div>
+      </div>
+      <div class="stat-row" id="surpriseStats"></div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>啟用</th><th>圖示</th><th>標題</th><th>說明</th><th>機率權重</th><th>目前機率</th><th>排序</th><th></th>
+        </tr></thead>
+        <tbody id="surpriseBody"></tbody>
+      </table></div>
+      <div class="sub" style="margin-top:10px;">
+        機率權重是相對比重，例如兩個選項權重都填 1 代表各 50%；填 3 跟 1 代表 75% 跟 25%。目前機率會自動幫你算好。
+      </div>
+    </section>
+
+    <!-- 護照獎勵 -->
+    <section class="panel" id="goals">
+      <div class="panel-head">
+        <div><h1 class="panel-title">護照集章獎勵</h1>
+          <div class="sub">客人集滿設定的數量，系統會自動核發折扣碼／兌換券到他的會員專區</div></div>
+        <div class="head-actions"><button class="btn" onclick="addGoal()">＋ 新增獎勵目標</button></div>
+      </div>
+      <div class="stat-row" id="goalStats"></div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>啟用</th><th>目標名稱</th><th>計算方式</th><th>分類</th><th>需要集滿</th>
+          <th>獎勵類型</th><th>折扣方式</th><th>數值</th><th>兌換品項</th><th>效期天數</th>
+          <th>已核發</th><th></th>
+        </tr></thead>
+        <tbody id="goalBody"></tbody>
+      </table></div>
+      <div class="sub" style="margin-top:10px;">
+        「分類」只在計算方式選「依分類」時才有作用；「總計」是不分類、所有印章加總。效期天數留空代表核發後不會過期。
+      </div>
+    </section>
+
     <!-- 付款設定 -->
     <section class="panel" id="payments">
       <div class="panel-head">
@@ -549,7 +591,8 @@
 <script src="supabase-config.js"></script>
 <script>
 let orders = [], customers = [], materials = [], products = [],
-    coupons = [], payments = [], employees = [], expenses = [];
+    coupons = [], payments = [], employees = [], expenses = [],
+    surprises = [], goals = [], goalClaims = [];
 let orderWatcher = null;
 
 /* ---------- 登入 ---------- */
@@ -620,13 +663,16 @@ document.querySelectorAll('.tab').forEach(btn=>{
     if(id === 'bom') { loadMaterials(); loadBom(); }
     if(id === 'tags') loadTags();
     if(id === 'finance') loadFinance();
+    if(id === 'surprises') loadSurprises();
+    if(id === 'goals') loadGoals();
   });
 });
 
 async function loadAll(){
   await Promise.all([
     loadOrders(), loadMaterials(), loadProducts(),
-    loadCoupons(), loadPayments(), loadEmployees(), loadBom(), loadTags()
+    loadCoupons(), loadPayments(), loadEmployees(), loadBom(), loadTags(),
+    loadSurprises(), loadGoals()
   ]);
   await loadFinance();
   renderBom();
@@ -1032,6 +1078,147 @@ async function addCoupon(){
   });
   if(error) return showToast('發放失敗');
   showToast('已發放，代碼已產生'); loadCoupons();
+}
+
+/* ---------- 驚喜設定 ---------- */
+async function loadSurprises(){
+  const { data, error } = await sb.from('passport_surprises').select('*').order('sort_order');
+  if(error){
+    const body = document.getElementById('surpriseBody');
+    if(body) body.innerHTML =
+      `<tr><td colspan="8" class="empty">還沒有建立護照相關資料表，請先到 Supabase 跑最新的 schema.sql</td></tr>`;
+    return;
+  }
+  surprises = data || [];
+  renderSurprises();
+}
+function renderSurprises(){
+  const stats = document.getElementById('surpriseStats');
+  const body = document.getElementById('surpriseBody');
+  const activeN = surprises.filter(s=>s.active).length;
+  stats.innerHTML = `
+    <div class="stat"><div class="num">${surprises.length}</div><div class="lbl">驚喜選項</div></div>
+    <div class="stat"><div class="num">${activeN}</div><div class="lbl">啟用中</div></div>`;
+
+  const totalWeight = surprises.filter(s=>s.active).reduce((s,x)=>s+Number(x.weight||0),0);
+
+  body.innerHTML = surprises.map((s,i)=>{
+    const pct = (s.active && totalWeight>0) ? (Number(s.weight||0)/totalWeight*100).toFixed(1)+'%' : '—';
+    return `<tr>
+      <td style="text-align:center;"><input type="checkbox" ${s.active?'checked':''}
+          style="accent-color:var(--gold-deep);" onchange="saveSurprise(${i},'active',this.checked)"></td>
+      <td><input class="cell" style="width:56px;text-align:center;" value="${esc(s.icon)}"
+                 onchange="saveSurprise(${i},'icon',this.value)"></td>
+      <td><input class="cell" value="${esc(s.title)}" onchange="saveSurprise(${i},'title',this.value)"></td>
+      <td><textarea class="cell" rows="2" onchange="saveSurprise(${i},'description',this.value)">${esc(s.description)}</textarea></td>
+      <td><input class="cell" type="number" min="0" step="0.1" value="${s.weight}"
+                 onchange="saveSurprise(${i},'weight',Number(this.value))"></td>
+      <td style="font-family:'JetBrains Mono',monospace;">${pct}</td>
+      <td><input class="cell" type="number" style="width:60px;" value="${s.sort_order||0}"
+                 onchange="saveSurprise(${i},'sort_order',Number(this.value))"></td>
+      <td><button class="btn danger" onclick="removeSurprise(${i})">刪除</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="8" class="empty">還沒有設定驚喜，客人翻開護照會看到空白</td></tr>';
+}
+async function saveSurprise(i, field, val){
+  const { error } = await sb.from('passport_surprises').update({ [field]: val }).eq('id', surprises[i].id);
+  if(error) return showToast('儲存失敗');
+  surprises[i][field] = val; showToast(); renderSurprises();
+}
+async function removeSurprise(i){
+  if(!confirm('確定刪除驚喜「'+surprises[i].title+'」？')) return;
+  const { error } = await sb.from('passport_surprises').delete().eq('id', surprises[i].id);
+  if(error) return showToast('刪除失敗');
+  showToast('已刪除'); loadSurprises();
+}
+async function addSurprise(){
+  const { error } = await sb.from('passport_surprises').insert({
+    title:'新的驚喜', description:'', icon:'☕', weight:1, active:true, sort_order:(surprises.length+1)
+  });
+  if(error) return showToast('新增失敗');
+  showToast('已新增'); loadSurprises();
+}
+
+/* ---------- 護照獎勵 ---------- */
+async function loadGoals(){
+  const [g, c] = await Promise.all([
+    sb.from('passport_goals').select('*').order('sort_order'),
+    sb.from('passport_goal_claims').select('goal_id')
+  ]);
+  if(g.error){
+    const body = document.getElementById('goalBody');
+    if(body) body.innerHTML =
+      `<tr><td colspan="12" class="empty">還沒有建立護照相關資料表，請先到 Supabase 跑最新的 schema.sql</td></tr>`;
+    return;
+  }
+  goals = g.data || [];
+  goalClaims = c.data || [];
+  renderGoals();
+}
+const GOAL_KIND_LABEL = { region:'產區', roast:'烘焙度', process:'處理法', flavor:'風味' };
+function claimCount(goalId){
+  return goalClaims.filter(x=>x.goal_id===goalId).length;
+}
+function renderGoals(){
+  const stats = document.getElementById('goalStats');
+  const body = document.getElementById('goalBody');
+  const activeN = goals.filter(g=>g.active).length;
+  stats.innerHTML = `
+    <div class="stat"><div class="num">${goals.length}</div><div class="lbl">獎勵目標</div></div>
+    <div class="stat"><div class="num">${activeN}</div><div class="lbl">啟用中</div></div>
+    <div class="stat"><div class="num">${goalClaims.length}</div><div class="lbl">累計核發次數</div></div>`;
+
+  body.innerHTML = goals.map((g,i)=>`
+    <tr>
+      <td style="text-align:center;"><input type="checkbox" ${g.active?'checked':''}
+          style="accent-color:var(--gold-deep);" onchange="saveGoal(${i},'active',this.checked)"></td>
+      <td><input class="cell" value="${esc(g.name)}" onchange="saveGoal(${i},'name',this.value)"></td>
+      <td><select class="mini" onchange="saveGoal(${i},'scope',this.value)">
+        <option value="category" ${g.scope==='category'?'selected':''}>依分類</option>
+        <option value="total" ${g.scope==='total'?'selected':''}>總計</option></select></td>
+      <td><select class="mini" ${g.scope!=='category'?'disabled':''} onchange="saveGoal(${i},'tag_kind',this.value)">
+        <option value="">請選擇</option>
+        ${Object.entries(GOAL_KIND_LABEL).map(([k,l])=>
+          `<option value="${k}" ${g.tag_kind===k?'selected':''}>${l}</option>`).join('')}
+      </select></td>
+      <td><input class="cell" type="number" min="1" style="width:64px;" value="${g.target_count}"
+                 onchange="saveGoal(${i},'target_count',Number(this.value))"></td>
+      <td><select class="mini" onchange="saveGoal(${i},'reward_kind',this.value)">
+        <option value="discount" ${g.reward_kind==='discount'?'selected':''}>折扣券</option>
+        <option value="exchange" ${g.reward_kind==='exchange'?'selected':''}>兌換券</option></select></td>
+      <td><select class="mini" ${g.reward_kind!=='discount'?'disabled':''} onchange="saveGoal(${i},'discount_type',this.value)">
+        <option value="percent" ${g.discount_type==='percent'?'selected':''}>打折</option>
+        <option value="fixed" ${g.discount_type==='fixed'?'selected':''}>折抵金額</option></select></td>
+      <td><input class="cell" type="number" style="width:64px;" value="${g.discount_value||0}"
+                 ${g.reward_kind!=='discount'?'disabled':''}
+                 onchange="saveGoal(${i},'discount_value',Number(this.value))"></td>
+      <td><input class="cell" value="${esc(g.exchange_item)}" ${g.reward_kind!=='exchange'?'disabled':''}
+                 placeholder="免費一包阿里山" onchange="saveGoal(${i},'exchange_item',this.value)"></td>
+      <td><input class="cell" type="number" style="width:64px;" value="${g.expiry_days ?? ''}"
+                 placeholder="不限" onchange="saveGoal(${i},'expiry_days',this.value===''?null:Number(this.value))"></td>
+      <td style="text-align:center;font-family:'JetBrains Mono',monospace;">${claimCount(g.id)}</td>
+      <td><button class="btn danger" onclick="removeGoal(${i})">刪除</button></td>
+    </tr>`).join('') || '<tr><td colspan="12" class="empty">還沒有設定護照獎勵</td></tr>';
+}
+async function saveGoal(i, field, val){
+  const { error } = await sb.from('passport_goals').update({ [field]: val }).eq('id', goals[i].id);
+  if(error) return showToast('儲存失敗：' + error.message);
+  goals[i][field] = val; showToast(); renderGoals();
+}
+async function removeGoal(i){
+  if(!confirm('確定刪除獎勵「'+goals[i].name+'」？已核發出去的券不會被收回。')) return;
+  const { error } = await sb.from('passport_goals').delete().eq('id', goals[i].id);
+  if(error) return showToast('刪除失敗');
+  showToast('已刪除'); loadGoals();
+}
+async function addGoal(){
+  const { error } = await sb.from('passport_goals').insert({
+    name:'新的集章獎勵', scope:'category', tag_kind:'region', target_count:5,
+    reward_kind:'discount', discount_type:'percent', discount_value:9,
+    active:true, sort_order:(goals.length+1)
+  });
+  if(error) return showToast('新增失敗：' + error.message);
+  showToast('已新增'); loadGoals();
 }
 
 /* ---------- 付款設定 ---------- */

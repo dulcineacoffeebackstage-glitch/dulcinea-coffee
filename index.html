@@ -100,71 +100,212 @@
   }
 
   /* ---------- 風味護照 ---------- */
-  .passport{
-    background:linear-gradient(160deg,#FFFFFF 0%, var(--paper-50) 55%, var(--paper-200) 100%);
-    border:1px solid var(--line);border-radius:3px;padding:20px 22px;
-    position:relative;overflow:hidden;
+  :root{
+    --pp-cover-1:#2E2117; --pp-cover-2:#1C140D;
+    --pp-stamp-region:#33587A; --pp-stamp-flavor:#A6453A;
+    --pp-stamp-roast:#7C5A3A; --pp-stamp-process:#4B7A5C;
   }
-  .passport::before{
-    content:'';position:absolute;top:0;left:0;right:0;height:2px;
-    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  .passport{position:relative;}
+  .pp-book{
+    max-width:400px;margin:0 auto;
+    perspective:1800px;
   }
+
+  /* ---- 封面（闔起） ---- */
+  .pp-cover{
+    position:relative;border-radius:6px;padding:38px 26px 30px;
+    aspect-ratio:5/6.6;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;text-align:center;cursor:pointer;
+    background:
+      radial-gradient(120% 90% at 30% 10%, rgba(255,255,255,.06), transparent 60%),
+      linear-gradient(155deg, var(--pp-cover-1) 0%, var(--pp-cover-2) 100%);
+    box-shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 14px 30px -14px rgba(20,14,8,.55);
+    border:1px solid #120D08;
+    transition:transform .25s ease;
+  }
+  .pp-cover:active{transform:scale(.985);}
+  .pp-cover::before{
+    content:'';position:absolute;inset:10px;
+    border:1px solid rgba(201,165,107,.45);border-radius:3px;pointer-events:none;
+  }
+  .pp-cover .logo-mark{height:52px;opacity:.95;filter:brightness(0) invert(1) opacity(.92);margin-bottom:18px;}
+  .pp-cover-eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--gold);opacity:.85;margin:0 0 10px;
+  }
+  .pp-cover-title{
+    font-family:'Space Grotesk',sans-serif;font-size:22px;letter-spacing:.12em;
+    color:#F3E6C8;margin:0 0 8px;
+  }
+  .pp-cover-sub{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;
+    color:rgba(243,230,200,.6);margin:0;
+  }
+  .pp-cover-hint{
+    margin-top:26px;font-size:11.5px;color:rgba(243,230,200,.55);
+    font-family:'JetBrains Mono',monospace;letter-spacing:.04em;
+  }
+  .pp-cover-hint::after{content:' →';}
+
+  /* ---- 開啟前：輸入電話 ---- */
+  .pp-gate{padding:18px 4px 4px;text-align:center;}
   .pp-lead{margin:0 0 14px;font-size:13.5px;color:var(--ink-soft);}
-  .pp-form{display:flex;gap:8px;max-width:340px;}
+  .pp-form{display:flex;gap:8px;max-width:320px;margin:0 auto;}
   .pp-form input{
     flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:2px;
-    background:var(--white);font-family:inherit;font-size:14px;
+    background:var(--white);font-family:inherit;font-size:14px;text-align:center;
   }
   .pp-form input:focus{outline:none;border-color:var(--gold);}
   .pp-note{margin:10px 0 0;font-size:11.5px;color:var(--ink-mute);line-height:1.6;}
+  .pp-err{margin:8px 0 0;font-size:12px;color:var(--alert);}
 
-  .pp-summary{
-    font-size:14px;line-height:2;color:var(--ink-soft);margin:0 0 4px;
+  /* ---- 開啟後：護照本 ---- */
+  .pp-open{
+    background:linear-gradient(160deg,#FFFFFF 0%, var(--paper-50) 55%, var(--paper-200) 100%);
+    border:1px solid var(--line);border-radius:4px;overflow:hidden;
+    box-shadow:0 10px 26px -18px rgba(43,42,40,.35);
   }
-  .pp-summary b{
-    color:var(--gold-deep);font-weight:600;
-    font-family:'JetBrains Mono',monospace;font-size:13px;
+  .pp-tabs{
+    display:flex;overflow-x:auto;gap:2px;padding:8px 8px 0;
+    background:var(--paper-200);border-bottom:1px solid var(--line);
+    scrollbar-width:none;
   }
-  .pp-hi{color:var(--ink);font-weight:600;}
-  .pp-stats{
-    display:flex;gap:18px;flex-wrap:wrap;
-    padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line);
+  .pp-tabs::-webkit-scrollbar{display:none;}
+  .pp-tab{
+    flex:none;padding:9px 13px 10px;font-size:11.5px;white-space:nowrap;cursor:pointer;
+    font-family:'JetBrains Mono',monospace;letter-spacing:.03em;color:var(--ink-mute);
+    border-radius:4px 4px 0 0;position:relative;top:1px;
+    border:1px solid transparent;border-bottom:none;
   }
-  .pp-stat .n{font-family:'Space Grotesk',sans-serif;font-size:22px;color:var(--ink);}
-  .pp-stat .l{
-    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;
-    text-transform:uppercase;color:var(--ink-mute);margin-top:2px;
+  .pp-tab.active{
+    color:var(--ink);background:var(--paper-50);border-color:var(--line);
+    font-weight:600;
   }
-  .pp-row{margin-top:12px;}
-  .pp-row-label{
-    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;
-    text-transform:uppercase;color:var(--wood);margin-bottom:7px;
+  .pp-tab .dot{
+    display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:5px;
+    background:var(--gold);vertical-align:middle;
   }
-  .pp-chips{display:flex;gap:6px;flex-wrap:wrap;}
-  .pp-chip{
-    font-size:12px;padding:4px 10px;border-radius:14px;
-    border:1px solid var(--line);
-    background:linear-gradient(180deg,#FFFFFF,var(--paper-100));color:var(--ink-soft);
-    display:inline-flex;align-items:center;gap:6px;
+  .pp-page{padding:22px 22px 24px;min-height:180px;position:relative;}
+  .pp-page::before{
+    content:'';position:absolute;top:0;bottom:0;left:50%;width:1px;
+    background:linear-gradient(180deg,transparent,var(--line) 15%,var(--line) 85%,transparent);
+    opacity:.6;pointer-events:none;
   }
-  .pp-chip .c{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold-deep);}
-  .pp-chip.match{
-    border-color:var(--gold-deep);
-    background:linear-gradient(180deg,#FFFDF8,#F5EBD8);color:var(--wood);
+
+  /* ---- 當日驚喜 ---- */
+  .pp-surprise{text-align:center;padding:6px 0 4px;}
+  .pp-surprise-icon{font-size:44px;line-height:1;margin-bottom:12px;}
+  .pp-surprise-title{
+    font-family:'Space Grotesk',sans-serif;font-size:18px;color:var(--ink);margin:0 0 8px;
   }
-  .pp-chip.match .c{color:var(--gold-deep);font-weight:600;}
-  .pp-match-note{
-    margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);
-    font-size:12.5px;color:var(--ok);line-height:1.7;
+  .pp-surprise-desc{font-size:13.5px;color:var(--ink-soft);line-height:1.75;max-width:32ch;margin:0 auto;}
+  .pp-surprise-tag{
+    display:inline-block;margin-top:14px;font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);
   }
-  .pp-empty{font-size:13.5px;color:var(--ink-soft);line-height:1.8;margin:0;}
+  .pp-celebrate{
+    margin:0 0 18px;padding:14px 16px;border-radius:4px;text-align:left;
+    background:linear-gradient(180deg,#FFFDF6,#F7EBD3);border:1px solid var(--gold);
+  }
+  .pp-celebrate-title{
+    font-family:'Space Grotesk',sans-serif;font-size:13.5px;color:var(--wood);margin:0 0 6px;
+  }
+  .pp-celebrate-row{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-size:12.5px;color:var(--ink-soft);padding:5px 0;
+  }
+  .pp-celebrate-code{
+    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold-deep);
+    background:var(--white);border:1px dashed var(--gold);border-radius:3px;
+    padding:3px 8px;cursor:pointer;
+  }
+
+  /* ---- 印章頁 ---- */
+  .pp-stamp-intro{font-size:12px;color:var(--ink-mute);margin:0 0 16px;line-height:1.6;}
+  .pp-stamps{display:flex;flex-wrap:wrap;gap:14px 16px;}
+  .pp-stamp{
+    width:82px;height:82px;border-radius:50%;flex-shrink:0;position:relative;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:6px;
+    border:2px solid var(--stamp-color);color:var(--stamp-color);
+    background:radial-gradient(circle,rgba(255,255,255,0) 60%, var(--stamp-color) 230%);
+    opacity:.42;filter:saturate(.7);
+  }
+  .pp-stamp::before{
+    content:'';position:absolute;inset:4px;border:1px dashed var(--stamp-color);
+    border-radius:50%;opacity:.6;
+  }
+  .pp-stamp.match{opacity:1;filter:none;}
+  .pp-stamp-name{font-size:10px;line-height:1.25;font-weight:700;word-break:break-word;}
+  .pp-stamp-count{
+    position:absolute;top:-6px;right:-4px;min-width:18px;height:18px;border-radius:9px;
+    background:var(--stamp-color);color:#fff;font-family:'JetBrains Mono',monospace;
+    font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px;
+  }
+  .pp-stamp-empty{font-size:13px;color:var(--ink-mute);padding:10px 0;}
+
+  .pp-goal{
+    margin-top:20px;padding-top:16px;border-top:1px solid var(--line);
+  }
+  .pp-goal-row{margin-bottom:12px;}
+  .pp-goal-row:last-child{margin-bottom:0;}
+  .pp-goal-name{
+    display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);margin-bottom:5px;
+  }
+  .pp-goal-name b{color:var(--ink);font-weight:600;}
+  .pp-goal-bar{height:6px;border-radius:3px;background:var(--paper-300);overflow:hidden;}
+  .pp-goal-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-deep));border-radius:3px;}
+  .pp-goal-done{color:var(--ok);}
+
+  /* ---- 會員專區 ---- */
+  .pp-member-sec{margin-bottom:22px;}
+  .pp-member-sec:last-child{margin-bottom:0;}
+  .pp-member-title{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--wood);margin-bottom:10px;
+  }
+  .pp-order-card{
+    border:1px solid var(--line);border-radius:3px;padding:11px 13px;margin-bottom:8px;
+    background:var(--white);
+  }
+  .pp-order-head{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-mute);margin-bottom:5px;}
+  .pp-order-items{font-size:12.5px;color:var(--ink-soft);line-height:1.7;}
+  .pp-order-foot{
+    display:flex;justify-content:space-between;margin-top:7px;padding-top:7px;
+    border-top:1px solid var(--paper-200);font-size:12.5px;
+  }
+  .pp-badge{
+    font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 7px;border-radius:10px;
+    background:var(--paper-200);color:var(--ink-soft);
+  }
+  .pp-badge.已完成{background:#E7EFE7;color:var(--ok);}
+  .pp-badge.待處理{background:#F7EBD3;color:var(--gold-deep);}
+  .pp-badge.已出貨{background:#E4EAF2;color:var(--stamp-region);}
+  .pp-coupon-card{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    border:1px dashed var(--line);border-radius:3px;padding:10px 13px;margin-bottom:8px;
+  }
+  .pp-coupon-card.used{opacity:.5;}
+  .pp-coupon-code{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink);}
+  .pp-coupon-desc{font-size:11.5px;color:var(--ink-mute);margin-top:2px;}
+  .pp-copy-btn{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--gold-deep);
+    background:var(--paper-100);border:1px solid var(--line);border-radius:3px;
+    padding:5px 9px;cursor:pointer;flex-shrink:0;
+  }
+  .pp-copy-btn:hover{border-color:var(--gold);}
+  .pp-empty{font-size:13px;color:var(--ink-mute);line-height:1.8;margin:0;padding:6px 0;}
+
+  .pp-foot-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:11px 22px;border-top:1px solid var(--line);background:var(--paper-100);
+  }
   .pp-reset{
     background:none;border:none;font-family:'JetBrains Mono',monospace;font-size:11px;
-    color:var(--ink-mute);cursor:pointer;padding:8px 0 0;text-decoration:underline;
+    color:var(--ink-mute);cursor:pointer;padding:0;text-decoration:underline;
   }
   .pp-reset:hover{color:var(--gold-deep);}
   .pp-enc{
-    display:inline-block;margin-top:14px;
     font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold-deep);
     text-decoration:none;border-bottom:1px solid var(--gold);padding-bottom:2px;
   }
@@ -465,15 +606,7 @@
   <section id="passportSection">
     <h2 class="section-title">風味護照</h2>
     <div class="passport" id="passport">
-      <div class="pp-intro">
-        <p class="pp-lead">留下電話，看看你走過哪些產地、喝過哪些風味。</p>
-        <div class="pp-form">
-          <input type="tel" id="ppPhone" placeholder="0912-345-678"
-                 onkeydown="if(event.key==='Enter') loadPassport()">
-          <button type="button" class="btn-apply" onclick="loadPassport()">查詢</button>
-        </div>
-        <p class="pp-note">只會顯示累積次數，不會顯示訂單內容。第一次訂購的話還沒有紀錄。</p>
-      </div>
+      <div class="pp-book" id="ppBook"></div>
     </div>
   </section>
 
@@ -513,7 +646,7 @@
     <div class="field">
       <label class="field-label" for="custPhone">電話</label>
       <input type="tel" id="custPhone" placeholder="0912-345-678"
-             onblur="if(!passport) loadPassport(this.value)">
+             onblur="if(!ppData) openPassport(this.value)">
     </div>
     <div class="field">
       <label class="field-label" for="note">備註（選填）</label>
@@ -595,6 +728,7 @@ async function init(){
       `<div class="setup-warn">${configWarning()}</div>`;
     return;
   }
+  renderPassportClosed();
   await Promise.all([loadProducts(), loadPayments()]);
 }
 
@@ -722,116 +856,227 @@ async function loadPayments(){
 }
 
 /* ---------- 風味護照 ---------- */
-let passport = null;
+let ppData = null, ppSurprise = null, ppMember = null, ppPhone = '', ppTab = 'surprise';
 
 function normPhone(s){ return String(s || '').replace(/\D/g, ''); }
 
-async function loadPassport(phoneOverride){
-  const input = document.getElementById('ppPhone');
-  const phone = normPhone(phoneOverride || (input ? input.value : ''));
-  const box = document.getElementById('passport');
-
-  if(phone.length < 8){
-    if(!phoneOverride) box.querySelector('.pp-note').textContent = '請輸入完整的電話號碼。';
-    return;
-  }
-
-  box.innerHTML = '<p class="pp-empty">查詢中…</p>';
-  const { data, error } = await sb.rpc('taste_passport', { p_phone: phone });
-
-  if(error || !data || !data.ok){
-    box.innerHTML = `<p class="pp-empty">查詢失敗，請稍後再試。</p>
-      <button class="pp-reset" onclick="resetPassport()">重新輸入</button>`;
-    return;
-  }
-  passport = data;
-  renderPassport();
-}
-
-function renderPassport(){
-  const box = document.getElementById('passport');
-  if(!passport) return;
-
-  if(!passport.orders){
-    box.innerHTML = `
-      <p class="pp-empty">
-        這支號碼還沒有訂購紀錄。<br>
-        第一次訂購之後，這裡就會開始累積你走過的產地與喝過的風味。
-      </p>
-      <a class="pp-enc" href="origin-encyclopedia.html">先去看看產地百科 →</a>
-      <button class="pp-reset" onclick="resetPassport()">換一支號碼</button>`;
-    return;
-  }
-
-  // 目前勾選的豆子有哪些標籤，等一下用來highlight
-  const picked = new Set();
-  Object.keys(qty).forEach(id => (tagMap[id] || []).forEach(t => picked.add(t.name)));
-  const pickedCountries = new Set(
-    Object.keys(qty).map(id => (products.find(p => p.id === id) || {}).origin_country).filter(Boolean)
-  );
-
-  const byKind = {};
-  (passport.tags || []).forEach(t => (byKind[t.kind] = byKind[t.kind] || []).push(t));
-
-  const chip = (name, count, isMatch) =>
-    `<span class="pp-chip ${isMatch ? 'match' : ''}">${esc(name)}<span class="c">${count}</span></span>`;
-
-  const rows = [];
-  if((passport.countries || []).length){
-    rows.push(`<div class="pp-row">
-      <div class="pp-row-label">到過的產地</div>
-      <div class="pp-chips">${passport.countries
-        .map(c => chip(c.name, c.count, pickedCountries.has(c.name))).join('')}</div>
-    </div>`);
-  }
-  const labels = { region:'產區', roast:'烘焙度', process:'處理法', flavor:'品嘗過的風味' };
-  ['region','roast','process','flavor'].forEach(k => {
-    if(!byKind[k]) return;
-    rows.push(`<div class="pp-row">
-      <div class="pp-row-label">${labels[k]}</div>
-      <div class="pp-chips">${byKind[k]
-        .map(t => chip(t.name, t.count, picked.has(t.name))).join('')}</div>
-    </div>`);
-  });
-
-  // 一句話摘要，挑最常喝的幾項
-  const top = (passport.countries || []).slice(0, 2)
-    .map(c => `<b>${esc(c.name)} ${c.count} 次</b>`);
-  const topFlavor = (byKind.flavor || []).slice(0, 3)
-    .map(t => `<b>${esc(t.name)} ${t.count} 次</b>`);
-  let summary = '';
-  if(top.length) summary += `你已經到過 ${top.join('、')}`;
-  if(topFlavor.length) summary += `${summary ? '，' : '你已經'}品嘗過 ${topFlavor.join('、')}`;
-
-  const matched = [...picked].filter(n =>
-    (passport.tags || []).some(t => t.name === n));
-
-  box.innerHTML = `
-    <div class="pp-stats">
-      <div class="pp-stat"><div class="n">${passport.orders}</div><div class="l">訂購次數</div></div>
-      <div class="pp-stat"><div class="n">${passport.items}</div><div class="l">累積包數</div></div>
-      <div class="pp-stat"><div class="n">${(passport.countries||[]).length}</div><div class="l">走過的產地</div></div>
+function renderPassportClosed(){
+  ppData = null; ppSurprise = null; ppMember = null; ppPhone = '';
+  document.getElementById('ppBook').innerHTML = `
+    <div class="pp-cover" onclick="document.getElementById('ppPhoneInput').focus()">
+      <img class="logo-mark" src="logo-dulcinea.png" alt="">
+      <p class="pp-cover-eyebrow">Dulcinea Passport</p>
+      <h3 class="pp-cover-title">風味護照</h3>
+      <p class="pp-cover-sub">WHERE THERE IS COFFEE, THERE IS A WAY.</p>
+      <p class="pp-cover-hint">點擊翻開</p>
     </div>
-    ${summary ? `<p class="pp-summary">${summary}。</p>` : ''}
-    ${rows.join('')}
-    ${matched.length ? `<p class="pp-match-note">
-        這次選的豆子，有 ${matched.length} 項風味是你喝過的：${matched.slice(0,6).map(esc).join('、')}
-      </p>` : ''}
-    <button class="pp-reset" onclick="resetPassport()">換一支號碼</button>`;
-}
-
-function resetPassport(){
-  passport = null;
-  document.getElementById('passport').innerHTML = `
-    <div class="pp-intro">
-      <p class="pp-lead">留下電話，看看你走過哪些產地、喝過哪些風味。</p>
+    <div class="pp-gate">
+      <p class="pp-lead">留下電話，翻開屬於你的風味護照。</p>
       <div class="pp-form">
-        <input type="tel" id="ppPhone" placeholder="0912-345-678"
-               onkeydown="if(event.key==='Enter') loadPassport()">
-        <button type="button" class="btn-apply" onclick="loadPassport()">查詢</button>
+        <input type="tel" id="ppPhoneInput" placeholder="0912-345-678"
+               onkeydown="if(event.key==='Enter') openPassport()">
+        <button type="button" class="btn-apply" onclick="openPassport()">翻開護照</button>
       </div>
       <p class="pp-note">只會顯示累積次數，不會顯示訂單內容。第一次訂購的話還沒有紀錄。</p>
+      <p class="pp-err" id="ppErr" style="display:none;"></p>
     </div>`;
+}
+
+async function openPassport(phoneOverride){
+  const input = document.getElementById('ppPhoneInput');
+  const phone = normPhone(phoneOverride || (input ? input.value : ''));
+  const errEl = document.getElementById('ppErr');
+
+  if(phone.length < 8){
+    if(!phoneOverride && errEl){ errEl.textContent = '請輸入完整的電話號碼。'; errEl.style.display = 'block'; }
+    return;
+  }
+  if(errEl) errEl.style.display = 'none';
+
+  const book = document.getElementById('ppBook');
+  book.innerHTML = '<p class="pp-empty" style="text-align:center;padding:44px 0;">翻開中…</p>';
+
+  const [tasteRes, surpriseRes, memberRes] = await Promise.all([
+    sb.rpc('taste_passport', { p_phone: phone }),
+    sb.rpc('draw_daily_surprise', { p_phone: phone }),
+    sb.rpc('member_area', { p_phone: phone })
+  ]);
+
+  if(tasteRes.error || !tasteRes.data || !tasteRes.data.ok){
+    book.innerHTML = `<p class="pp-empty" style="text-align:center;padding:30px 0;">查詢失敗，請稍後再試。</p>
+      <div style="text-align:center;"><button class="pp-reset" onclick="renderPassportClosed()">重新輸入</button></div>`;
+    return;
+  }
+
+  ppPhone = phone;
+  ppData = tasteRes.data;
+  ppSurprise = (surpriseRes.data && surpriseRes.data.ok) ? surpriseRes.data : null;
+  ppMember = (memberRes.data && memberRes.data.ok) ? memberRes.data : { orders:[], coupons:[] };
+  ppTab = 'surprise';
+  renderPassportOpen();
+}
+
+function ppTabDef(){
+  return [
+    { key:'surprise', label:'當日驚喜' },
+    { key:'region',   label:'產區'   },
+    { key:'flavor',   label:'風味'   },
+    { key:'roast',    label:'烘焙度' },
+    { key:'process',  label:'處理法' },
+    { key:'member',   label:'會員專區' }
+  ];
+}
+
+function switchPassportTab(key){
+  ppTab = key;
+  renderPassportOpen();
+}
+
+function renderPassportOpen(){
+  const book = document.getElementById('ppBook');
+  const tabs = ppTabDef().map(t => `
+    <div class="pp-tab ${ppTab===t.key?'active':''}" onclick="switchPassportTab('${t.key}')">
+      <span class="dot"></span>${t.label}
+    </div>`).join('');
+
+  book.innerHTML = `
+    <div class="pp-open">
+      <div class="pp-tabs">${tabs}</div>
+      <div class="pp-page">${renderPassportTabContent()}</div>
+      <div class="pp-foot-row">
+        <a class="pp-enc" href="origin-encyclopedia.html">看產地百科 →</a>
+        <button class="pp-reset" onclick="renderPassportClosed()">換一支電話</button>
+      </div>
+    </div>`;
+}
+
+function renderPassportTabContent(){
+  if(!ppData.orders && ppTab !== 'surprise' && ppTab !== 'member'){
+    return `<p class="pp-empty">這支號碼還沒有咖啡豆的購買紀錄，先去選豆子逛逛吧。</p>`;
+  }
+  if(ppTab === 'surprise') return renderSurpriseTab();
+  if(ppTab === 'member')   return renderMemberTab();
+  return renderStampTab(ppTab);
+}
+
+function renderSurpriseTab(){
+  let html = '';
+  const claims = ppData.newly_claimed || [];
+  if(claims.length){
+    html += claims.map(c => `
+      <div class="pp-celebrate">
+        <p class="pp-celebrate-title">🎉 恭喜集滿「${esc(c.goal_name)}」！</p>
+        <div class="pp-celebrate-row">
+          <span>${c.kind==='discount'
+            ? (c.discount_type==='percent' ? c.discount_value+' 折折扣碼' : '折抵 NT$'+c.discount_value+' 折扣碼')
+            : '兌換券：'+esc(c.exchange_item)}</span>
+          <span class="pp-celebrate-code" onclick="ppCopy('${esc(c.code)}', this)">${esc(c.code)} · 複製</span>
+        </div>
+      </div>`).join('');
+  }
+
+  if(ppSurprise){
+    html += `
+      <div class="pp-surprise">
+        <div class="pp-surprise-icon">${esc(ppSurprise.icon || '☕')}</div>
+        <h4 class="pp-surprise-title">${esc(ppSurprise.title)}</h4>
+        <p class="pp-surprise-desc">${esc(ppSurprise.description || '')}</p>
+        <p class="pp-surprise-tag">${ppSurprise.drawn_before ? '今日已翻閱過這個驚喜' : '今日限定驚喜'}</p>
+      </div>`;
+  } else {
+    html += `<p class="pp-empty" style="text-align:center;">今天還沒有設定驚喜，晚點再回來看看。</p>`;
+  }
+  return html;
+}
+
+const PP_KIND_META = {
+  region:  { label:'產區',   color:'var(--pp-stamp-region)'  },
+  flavor:  { label:'風味',   color:'var(--pp-stamp-flavor)'  },
+  roast:   { label:'烘焙度', color:'var(--pp-stamp-roast)'   },
+  process: { label:'處理法', color:'var(--pp-stamp-process)' }
+};
+
+function renderStampTab(kind){
+  const meta = PP_KIND_META[kind];
+  const list = (ppData.tags || []).filter(t => t.kind === kind);
+
+  const picked = new Set();
+  Object.keys(qty).forEach(id => (tagMap[id] || []).forEach(t => picked.add(t.name)));
+
+  let html = `<p class="pp-stamp-intro">每喝過一種${meta.label}就會蓋上一枚章，數字是累積次數。</p>`;
+  if(!list.length){
+    html += `<p class="pp-stamp-empty">還沒有蓋上${meta.label}的章。</p>`;
+  } else {
+    html += `<div class="pp-stamps">${list.map(t => `
+      <div class="pp-stamp ${picked.has(t.name)?'match':''}" style="--stamp-color:${meta.color};">
+        <span class="pp-stamp-count">${t.count}</span>
+        <span class="pp-stamp-name">${esc(t.name)}</span>
+      </div>`).join('')}</div>`;
+  }
+
+  const goals = (ppData.goals || []).filter(g => g.scope === 'total' || g.tag_kind === kind);
+  if(goals.length){
+    html += `<div class="pp-goal">${goals.map(g => `
+      <div class="pp-goal-row">
+        <div class="pp-goal-name">
+          <span>${esc(g.name)}${g.scope==='total' ? '（全部分類）' : ''}</span>
+          <b class="${g.completed?'pp-goal-done':''}">${g.progress} / ${g.target}${g.completed ? ' ✓' : ''}</b>
+        </div>
+        <div class="pp-goal-bar"><div class="pp-goal-bar-fill" style="width:${Math.min(100, g.progress/g.target*100)}%"></div></div>
+      </div>`).join('')}</div>`;
+  }
+  return html;
+}
+
+function renderMemberTab(){
+  let html = '<div class="pp-member-sec"><div class="pp-member-title">購買紀錄</div>';
+  const orders = ppMember.orders || [];
+  if(!orders.length){
+    html += `<p class="pp-empty">這支電話還沒有訂購紀錄。</p>`;
+  } else {
+    html += orders.slice(0, 10).map(o => {
+      const t = new Date(o.created_at).toLocaleString('zh-TW', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
+      const items = (o.items || []).map(i => `${esc(i.name)} × ${i.qty}`).join('、');
+      return `<div class="pp-order-card">
+        <div class="pp-order-head"><span>#${esc(o.id)} · ${t}</span>
+          <span class="pp-badge ${esc(o.status)}">${esc(o.status)}</span></div>
+        <div class="pp-order-items">${items}</div>
+        <div class="pp-order-foot"><span>${o.order_source==='counter'?'現場點單':'線上訂購'}</span><span>NT$ ${Number(o.total).toLocaleString('en-US')}</span></div>
+      </div>`;
+    }).join('');
+  }
+  html += '</div>';
+
+  html += '<div class="pp-member-sec"><div class="pp-member-title">我的折扣碼</div>';
+  const coupons = ppMember.coupons || [];
+  if(!coupons.length){
+    html += `<p class="pp-empty">目前沒有折扣碼，集章換獎後會出現在這裡。</p>`;
+  } else {
+    html += coupons.map(c => {
+      const used = c.status === '已使用';
+      const desc = c.kind === 'discount'
+        ? (c.discount_type === 'percent' ? c.discount_value+' 折' : '折抵 NT$'+c.discount_value)
+        : '兌換：'+esc(c.exchange_item || '');
+      return `<div class="pp-coupon-card ${used?'used':''}">
+        <div>
+          <div class="pp-coupon-code">${esc(c.code)}</div>
+          <div class="pp-coupon-desc">${desc}${c.expiry ? ' · 效期至 '+c.expiry : ''} · ${used?'已使用':'未使用'}</div>
+        </div>
+        ${used ? '' : `<button class="pp-copy-btn" onclick="ppCopy('${esc(c.code)}', this)">複製</button>`}
+      </div>`;
+    }).join('');
+  }
+  html += '</div>';
+  return html;
+}
+
+function ppCopy(code, btn){
+  if(navigator.clipboard) navigator.clipboard.writeText(code).catch(()=>{});
+  if(btn){
+    const orig = btn.textContent;
+    btn.textContent = '已複製';
+    setTimeout(() => { btn.textContent = orig; }, 1200);
+  }
 }
 
 /* ---------- 豆單 ---------- */
@@ -981,7 +1226,7 @@ function renderSummary(){
   box.innerHTML = rows + extra +
     `<div class="summary-row total"><span>應付總額</span><span>NT$ ${(sub - dis).toLocaleString('en-US')}</span></div>`;
   updateCart();
-  if(passport) renderPassport();
+  if(ppData && (ppTab==='region'||ppTab==='flavor'||ppTab==='roast'||ppTab==='process')) renderPassportOpen();
 }
 
 /* ---------- 送出 ---------- */
