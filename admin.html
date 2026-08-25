@@ -594,6 +594,7 @@ let orders = [], customers = [], materials = [], products = [],
     coupons = [], payments = [], employees = [], expenses = [],
     surprises = [], goals = [], goalClaims = [];
 let orderWatcher = null;
+let openOrderIds = new Set();
 
 /* ---------- 登入 ---------- */
 async function boot(){
@@ -734,7 +735,7 @@ function renderOrders(){
       `<div class="item-row"><span>${esc(i.product_name)} × ${i.qty}</span><span>${money(i.unit_price*i.qty)}</span></div>`).join('');
     return `
     <div class="order-card">
-      <div class="order-head" onclick="this.nextElementSibling.classList.toggle('open')">
+      <div class="order-head" onclick="toggleOrderCard('${o.id}')">
         <div>
           <div class="order-id">#${esc(o.id)}
             <span class="badge ${o.order_source === 'counter' ? '現場' : '線上'}">${
@@ -745,7 +746,7 @@ function renderOrders(){
         </div>
         <div class="order-total">${money(o.total)}</div>
       </div>
-      <div class="order-body">
+      <div class="order-body${openOrderIds.has(o.id) ? ' open' : ''}">
         <div class="info-row"><b>電話：</b>${esc(o.phone)}</div>
         <div class="info-row"><b>取貨：</b>${o.delivery==='delivery'?'宅配寄送':'門市自取'}</div>
         ${o.address ? `<div class="info-row"><b>地址：</b>${esc(o.address)}</div>` : ''}
@@ -779,11 +780,16 @@ function renderOrders(){
     </div>`;
   }).join('');
 }
+function toggleOrderCard(id){
+  if(openOrderIds.has(id)) openOrderIds.delete(id); else openOrderIds.add(id);
+  renderOrders();
+}
 async function setOrderField(id, field, val){
   const { error } = await sb.from('orders').update({ [field]: val }).eq('id', id);
   if(error) return showToast('更新失敗');
   const o = orders.find(x=>x.id===id);
   if(o) o[field] = val;
+  openOrderIds.add(id);
   showToast('已更新為「' + val + '」');
   renderOrders();
 }
