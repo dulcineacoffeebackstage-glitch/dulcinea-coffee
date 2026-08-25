@@ -227,7 +227,13 @@
   }
   .qr-preview{
     max-width:110px;border:1px solid var(--line);border-radius:2px;
-    padding:5px;background:var(--white);margin-top:6px;
+    padding:5px;background:var(--white);margin-top:6px;display:block;
+  }
+  .qr-upload-btn{
+    padding:6px 11px;font-size:11px;white-space:nowrap;display:inline-block;
+  }
+  .qr-upload-status{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink-mute);
   }
   .field-inline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .inline-label{
@@ -541,7 +547,7 @@
     <section class="panel" id="payments">
       <div class="panel-head">
         <div><h1 class="panel-title">付款方式設定</h1>
-          <div class="sub">QR Code 請先上傳到 Supabase Storage 取得網址，再貼進來</div></div>
+          <div class="sub">QR Code 可直接按「上傳圖片」選檔案上傳；也可以貼現成的圖片網址</div></div>
       </div>
       <div class="table-wrap"><table>
         <thead><tr>
@@ -1198,7 +1204,7 @@ function renderGoals(){
       <td><input class="cell" type="number" style="width:64px;" value="${g.discount_value||0}"
                  ${g.reward_kind!=='discount'?'disabled':''}
                  onchange="saveGoal(${i},'discount_value',Number(this.value))"></td>
-      <td><input class="cell" value="${esc(g.exchange_item)}" ${g.reward_kind!=='exchange'?'disabled':''}
+      <td><input class="cell" value="${esc(g.exchange_item)}"
                  placeholder="免費一包阿里山" onchange="saveGoal(${i},'exchange_item',this.value)"></td>
       <td><input class="cell" type="number" style="width:64px;" value="${g.expiry_days ?? ''}"
                  placeholder="不限" onchange="saveGoal(${i},'expiry_days',this.value===''?null:Number(this.value))"></td>
@@ -1248,6 +1254,12 @@ async function loadPayments(){
       <td>
         <input class="cell" value="${esc(p.qr_image_url)}" placeholder="https://…"
                onchange="savePayment(${i},'qr_image_url',this.value)">
+        <div class="field-inline" style="margin-top:6px;gap:6px;">
+          <label class="btn ghost qr-upload-btn" for="qrFile${i}">上傳圖片</label>
+          <input type="file" id="qrFile${i}" accept="image/*" style="display:none"
+                 onchange="uploadPaymentQR(${i}, this)">
+          <span id="qrUploadStatus${i}" class="qr-upload-status"></span>
+        </div>
         ${p.qr_image_url ? `<img class="qr-preview" src="${esc(p.qr_image_url)}" alt="QR 預覽">` : ''}
       </td>
       <td><input class="cell" value="${esc(p.qr_caption)}" onchange="savePayment(${i},'qr_caption',this.value)"></td>
@@ -1257,6 +1269,27 @@ async function savePayment(i, field, val){
   const { error } = await sb.from('payment_methods').update({ [field]: val }).eq('id', payments[i].id);
   if(error) return showToast('儲存失敗');
   payments[i][field] = val; showToast(); loadPayments();
+}
+async function uploadPaymentQR(i, inputEl){
+  const file = inputEl.files && inputEl.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){
+    showToast('請選擇圖片檔（PNG / JPG）'); inputEl.value=''; return;
+  }
+  const p = payments[i];
+  const statusEl = document.getElementById(`qrUploadStatus${i}`);
+  if(statusEl) statusEl.textContent = '上傳中…';
+  const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+  const path = `payment-qr/${p.id}-${Date.now()}.${ext}`;
+  const { error: upErr } = await sb.storage.from('site-photos')
+    .upload(path, file, { upsert:true, cacheControl:'3600' });
+  if(upErr){
+    if(statusEl) statusEl.textContent = '';
+    inputEl.value = '';
+    return showToast('上傳失敗：' + upErr.message);
+  }
+  const { data } = sb.storage.from('site-photos').getPublicUrl(path);
+  await savePayment(i, 'qr_image_url', data.publicUrl);
 }
 
 /* ---------- 員工薪資 ---------- */
